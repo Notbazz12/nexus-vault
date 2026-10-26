@@ -1,0 +1,45 @@
+# Node / Frontend
+node_modules/
+dist/
+dist-ssr/
+*.local
+.pnpm-debug.log*
+
+# Rust / Backend
+/src-tauri/target/
+**/*.rs.bk
+Cargo.lock
+
+# Tauri build artifacts
+src-tauri/target/
+*.msi
+*.exe
+*.AppImage
+*.deb
+
+# Environment & Editor
+.env
+.env.*
+!.env.example
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# SQLite & Vault Databases (Crucial: never commit local vault DBs)
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+vault/
+backups/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
