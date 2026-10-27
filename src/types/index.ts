@@ -79,6 +79,7 @@ export type ViewType =
   | 'generator'
   | 'notes'
   | 'cards'
+  | 'identities'
   | 'security-center'
   | 'import-export'
   | 'settings'

@@ -60,14 +60,10 @@ export const SecurityCenterView: React.FC = () => {
   return (
     <div className="flex-1 overflow-y-auto p-6 select-none bg-nexus-950 space-y-6">
       {/* Header Banner */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-nexus-900 via-nexus-850 to-cyber-amber/10 border border-nexus-750 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-6 rounded-2xl bg-nexus-850 border border-nexus-750 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyber-amber/15 border border-cyber-amber/30 text-[11px] font-mono text-cyber-amber">
-            <ShieldAlert className="w-3.5 h-3.5" />
-            Auditoría en Memoria RAM
-          </div>
-          <h2 className="text-xl font-bold text-nexus-100 font-mono">
-            Centro de Seguridad & Vulnerabilidades
+          <h2 className="text-xl font-bold text-nexus-100">
+            Comprobación de contraseñas
           </h2>
           <p className="text-xs text-nexus-400 max-w-xl">
             Inspección exhaustiva de higiene criptográfica. Los resultados se calculan al vuelo y se destruyen al bloquear la bóveda.
@@ -144,7 +140,7 @@ export const SecurityCenterView: React.FC = () => {
           <div className="space-y-3">
             {reusedGroups.length === 0 ? (
               <div className="p-8 rounded-xl bg-nexus-900 border border-nexus-750 text-center text-xs text-nexus-400">
-                <ShieldCheck className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
+                <ShieldCheck className="w-8 h-8 text-cyber-green mx-auto mb-2" />
                 No tienes contraseñas repetidas en tu bóveda. Excelente higiene.
               </div>
             ) : (
@@ -187,7 +183,7 @@ export const SecurityCenterView: React.FC = () => {
           <div className="space-y-3">
             {weakItems.length === 0 ? (
               <div className="p-8 rounded-xl bg-nexus-900 border border-nexus-750 text-center text-xs text-nexus-400">
-                <ShieldCheck className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
+                <ShieldCheck className="w-8 h-8 text-cyber-green mx-auto mb-2" />
                 Todas tus contraseñas cumplen con el umbral mínimo de entropía.
               </div>
             ) : (
@@ -212,7 +208,7 @@ export const SecurityCenterView: React.FC = () => {
                     </div>
                     <button
                       onClick={() => handleFixItem(item)}
-                      className="px-3 py-1.5 rounded-lg bg-cyan-accent text-nexus-950 font-bold text-xs hover:brightness-110 flex items-center gap-1.5"
+                      className="px-3 py-1.5 rounded-lg bg-cyan-accent text-nexus-950 font-bold text-xs hover:bg-electric-blue flex items-center gap-1.5"
                     >
                       <Sparkles className="w-3.5 h-3.5" />
                       <span>Generar Fuerte</span>
@@ -228,7 +224,7 @@ export const SecurityCenterView: React.FC = () => {
           <div className="space-y-3">
             {oldItems.length === 0 ? (
               <div className="p-8 rounded-xl bg-nexus-900 border border-nexus-750 text-center text-xs text-nexus-400">
-                <ShieldCheck className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
+                <ShieldCheck className="w-8 h-8 text-cyber-green mx-auto mb-2" />
                 No tienes contraseñas con más de 1 año sin actualizar.
               </div>
             ) : (

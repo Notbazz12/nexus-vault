@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Sparkles,
   RefreshCw,
   Copy,
   Plus,
@@ -84,12 +83,8 @@ export const GeneratorView: React.FC = () => {
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-accent/10 border border-cyan-accent/30 text-[11px] font-mono text-cyan-accent">
-            <Sparkles className="w-3.5 h-3.5" />
-            CSPRNG • window.crypto.getRandomValues
-          </div>
-          <h2 className="text-xl font-bold text-nexus-100 font-mono">
-            Generador de Contraseñas Criptográfico
+          <h2 className="text-xl font-bold text-nexus-100">
+            Generador de contraseñas
           </h2>
           <p className="text-xs text-nexus-400">
             Crea claves aleatorias sin sesgo matemático. Los secretos generados nunca se transmiten fuera de tu equipo.
@@ -168,7 +163,7 @@ export const GeneratorView: React.FC = () => {
 
           <button
             onClick={handleSaveToVault}
-            className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-cyan-accent to-electric-blue text-nexus-950 font-bold text-xs hover:brightness-110 active:brightness-95 transition-all shadow-cyber-cyan flex items-center justify-center gap-2"
+            className="w-full py-2.5 px-4 rounded-xl bg-cyan-accent hover:bg-electric-blue text-nexus-950 font-bold text-xs transition-all shadow-cyber-cyan flex items-center justify-center gap-2"
           >
             <Plus className="w-4 h-4" />
             <span>Guardar directamente en la Bóveda</span>
@@ -177,7 +172,7 @@ export const GeneratorView: React.FC = () => {
 
         {/* Configuration Controls */}
         <div className="p-5 rounded-2xl bg-nexus-900/90 border border-nexus-750 shadow-cyber-card space-y-5">
-          <div className="text-xs font-bold text-nexus-200 uppercase tracking-wider flex items-center gap-2">
+          <div className="text-xs font-bold text-nexus-200 flex items-center gap-2">
             <Sliders className="w-4 h-4 text-cyan-accent" />
             <span>Parámetros de Generación</span>
           </div>

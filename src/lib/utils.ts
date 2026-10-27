@@ -15,7 +15,7 @@ export interface EntropyResult {
 
 export function calculateEntropy(password: string): EntropyResult {
   if (!password || password.length === 0) {
-    return { bits: 0, score: 0, label: 'Muy Débil', color: '#F43F5E' };
+    return { bits: 0, score: 0, label: 'Muy Débil', color: 'rgb(var(--danger))' };
   }
 
   let poolSize = 0;
@@ -31,28 +31,28 @@ export function calculateEntropy(password: string): EntropyResult {
 
   let score = 0;
   let label: EntropyResult['label'] = 'Muy Débil';
-  let color = '#F43F5E';
+  let color = 'rgb(var(--danger))';
 
   if (bits < 28) {
     score = Math.max(10, Math.round((bits / 28) * 25));
     label = 'Muy Débil';
-    color = '#F43F5E';
+    color = 'rgb(var(--danger))';
   } else if (bits < 50) {
     score = Math.round(25 + ((bits - 28) / (50 - 28)) * 25);
     label = 'Débil';
-    color = '#F59E0B';
+    color = 'rgb(var(--warn))';
   } else if (bits < 75) {
     score = Math.round(50 + ((bits - 50) / (75 - 50)) * 25);
     label = 'Aceptable';
-    color = '#38BDF8';
+    color = 'rgb(var(--accent-strong))';
   } else if (bits < 100) {
     score = Math.round(75 + ((bits - 75) / (100 - 75)) * 20);
     label = 'Fuerte';
-    color = '#10B981';
+    color = 'rgb(var(--ok))';
   } else {
     score = 100;
     label = 'Excelente';
-    color = '#00F0FF';
+    color = 'rgb(var(--accent))';
   }
 
   return { bits, score, label, color };

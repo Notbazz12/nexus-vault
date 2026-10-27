@@ -114,7 +114,7 @@ export const App: React.FC = () => {
           {activeView === 'edit-item' && <EditItemView />}
           {activeView === 'generator' && <GeneratorView />}
           {activeView === 'notes' && <NotesView />}
-          {activeView === 'cards' && <CardsView />}
+          {(activeView === 'cards' || activeView === 'identities') && <CardsView />}
           {activeView === 'security-center' && <SecurityCenterView />}
           {activeView === 'import-export' && <ImportExportView />}
           {activeView === 'settings' && <SettingsView />}

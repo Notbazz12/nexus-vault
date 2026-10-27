@@ -72,7 +72,7 @@ export const ImportExportView: React.FC = () => {
     <div className="flex-1 overflow-y-auto p-6 select-none bg-nexus-950 space-y-6">
       {/* Header */}
       <div className="border-b border-nexus-750 pb-4">
-        <h2 className="text-xl font-bold text-nexus-100 font-mono">
+        <h2 className="text-xl font-bold text-nexus-100">
           Importación y Exportación de Bóveda
         </h2>
         <p className="text-xs text-nexus-400">
@@ -110,7 +110,7 @@ export const ImportExportView: React.FC = () => {
       {activeTab === 'import' && (
         <div className="space-y-6 max-w-3xl">
           {importSuccess && (
-            <div className="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-xs text-emerald-400 flex items-center gap-2">
+            <div className="p-4 rounded-xl bg-cyber-green/10 border border-cyber-green/40 text-xs text-cyber-green flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 shrink-0" />
               <span>¡Importación completada! Se han agregado 3 registros cifrados a tu bóveda.</span>
             </div>
@@ -118,7 +118,7 @@ export const ImportExportView: React.FC = () => {
 
           {/* Format selection */}
           <div className="p-5 rounded-2xl bg-nexus-900 border border-nexus-750 space-y-3">
-            <label className="text-xs font-semibold text-nexus-200 uppercase tracking-wider">
+            <label className="text-xs font-semibold text-nexus-200">
               1. Selecciona el Gestor de Origen
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -147,18 +147,18 @@ export const ImportExportView: React.FC = () => {
           {/* Preview Table */}
           <div className="p-5 rounded-2xl bg-nexus-900 border border-nexus-750 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-nexus-200 uppercase tracking-wider flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-nexus-200 flex items-center gap-1.5">
                 <Table className="w-4 h-4 text-cyan-accent" />
                 <span>2. Vista Previa y Asignación de Columnas ({previewData.length} detectados)</span>
               </span>
-              <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+              <span className="text-[10px] font-mono text-cyber-green flex items-center gap-1">
                 <CheckCircle2 className="w-3 h-3" /> Sin duplicados críticos
               </span>
             </div>
 
             <div className="overflow-x-auto border border-nexus-800 rounded-xl">
               <table className="w-full text-left text-xs font-mono">
-                <thead className="bg-nexus-850 text-nexus-400 text-[10px] uppercase border-b border-nexus-800">
+                <thead className="bg-nexus-850 text-nexus-400 text-[10px] border-b border-nexus-800">
                   <tr>
                     <th className="p-2.5">Servicio</th>
                     <th className="p-2.5">Usuario</th>
@@ -182,7 +182,7 @@ export const ImportExportView: React.FC = () => {
             <div className="pt-2 flex justify-end">
               <button
                 onClick={handleExecuteImport}
-                className="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-accent to-electric-blue text-nexus-950 font-bold text-xs hover:brightness-110 shadow-cyber-cyan flex items-center gap-2"
+                className="px-5 py-2 rounded-xl bg-cyan-accent hover:bg-electric-blue text-nexus-950 font-bold text-xs  shadow-cyber-cyan flex items-center gap-2"
               >
                 <Upload className="w-4 h-4" />
                 <span>Confirmar e Importar Registros</span>
@@ -196,7 +196,7 @@ export const ImportExportView: React.FC = () => {
       {activeTab === 'export' && (
         <div className="space-y-6 max-w-3xl">
           {exportDone && (
-            <div className="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-xs text-emerald-400 flex items-center gap-2">
+            <div className="p-4 rounded-xl bg-cyber-green/10 border border-cyber-green/40 text-xs text-cyber-green flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 shrink-0" />
               <span>{exportDone}</span>
             </div>
@@ -236,7 +236,7 @@ export const ImportExportView: React.FC = () => {
               <button
                 type="submit"
                 disabled={exportPassword.length < 4}
-                className="px-4 py-2 rounded-xl bg-cyan-accent text-nexus-950 font-bold text-xs hover:brightness-110 disabled:opacity-50 flex items-center gap-2"
+                className="px-4 py-2 rounded-xl bg-cyan-accent text-nexus-950 font-bold text-xs hover:bg-electric-blue disabled:opacity-50 flex items-center gap-2"
               >
                 <Download className="w-4 h-4" />
                 <span>Descargar Respaldo Cifrado (.nexusbackup)</span>

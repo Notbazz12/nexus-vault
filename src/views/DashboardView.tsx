@@ -23,24 +23,20 @@ export const DashboardView: React.FC = () => {
   const favoriteItems = items.filter((it): it is LoginItem => it.type === 'login' && it.isFavorite && !it.isTrashed);
 
   const getHealthColor = (score: number) => {
-    if (score >= 85) return '#00F0FF';
-    if (score >= 65) return '#10B981';
-    if (score >= 45) return '#F59E0B';
-    return '#F43F5E';
+    if (score >= 85) return 'rgb(var(--accent))';
+    if (score >= 65) return 'rgb(var(--ok))';
+    if (score >= 45) return 'rgb(var(--warn))';
+    return 'rgb(var(--danger))';
   };
 
   return (
     <div className="flex-1 overflow-y-auto p-6 space-y-6 select-none">
       {/* Top Welcome / Security Status Banner */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-nexus-900 via-nexus-850 to-electric-blue/15 border border-nexus-750 relative overflow-hidden shadow-cyber-card">
+      <div className="p-6 rounded-2xl bg-nexus-850 border border-nexus-750 relative overflow-hidden shadow-cyber-card">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-accent/10 border border-cyan-accent/30 text-[11px] font-mono text-cyan-accent">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-accent animate-pulse"></span>
-              Bóveda Local Activa • Modo Memoria Segura
-            </div>
-            <h1 className="text-2xl font-bold text-nexus-100 font-mono tracking-tight">
-              Bienvenido a <span className="text-cyan-accent">NEXUS VAULT</span>
+            <h1 className="text-2xl font-bold text-nexus-100 tracking-tight">
+              Estado de tu bóveda
             </h1>
             <p className="text-xs text-nexus-400 max-w-xl leading-relaxed">
               Tus credenciales y datos confidenciales se encuentran protegidos con cifrado XChaCha20-Poly1305.
@@ -96,14 +92,14 @@ export const DashboardView: React.FC = () => {
           className="p-4 rounded-xl bg-nexus-900/80 border border-nexus-750 hover:border-nexus-650 transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between text-nexus-400 mb-2">
-            <span className="text-xs font-medium uppercase tracking-wider">Total Contraseñas</span>
+            <span className="text-xs font-medium">Total Contraseñas</span>
             <div className="p-2 rounded-lg bg-nexus-800 text-cyan-accent group-hover:scale-105 transition-transform">
               <KeyRound className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-bold font-mono text-nexus-100">{health.totalPasswords}</div>
           <div className="text-[11px] text-nexus-500 mt-1 flex items-center gap-1">
-            <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Cifradas localmente
+            <CheckCircle2 className="w-3 h-3 text-cyber-green" /> Cifradas localmente
           </div>
         </div>
 
@@ -113,7 +109,7 @@ export const DashboardView: React.FC = () => {
           className="p-4 rounded-xl bg-nexus-900/80 border border-nexus-750 hover:border-cyber-red/40 transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between text-nexus-400 mb-2">
-            <span className="text-xs font-medium uppercase tracking-wider">Reutilizadas</span>
+            <span className="text-xs font-medium">Reutilizadas</span>
             <div className="p-2 rounded-lg bg-cyber-red/15 text-cyber-red group-hover:scale-105 transition-transform">
               <ShieldAlert className="w-4 h-4" />
             </div>
@@ -130,7 +126,7 @@ export const DashboardView: React.FC = () => {
           className="p-4 rounded-xl bg-nexus-900/80 border border-nexus-750 hover:border-cyber-amber/40 transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between text-nexus-400 mb-2">
-            <span className="text-xs font-medium uppercase tracking-wider">Contraseñas Débiles</span>
+            <span className="text-xs font-medium">Contraseñas Débiles</span>
             <div className="p-2 rounded-lg bg-cyber-amber/15 text-cyber-amber group-hover:scale-105 transition-transform">
               <AlertTriangle className="w-4 h-4" />
             </div>
@@ -147,7 +143,7 @@ export const DashboardView: React.FC = () => {
           className="p-4 rounded-xl bg-nexus-900/80 border border-nexus-750 hover:border-nexus-650 transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between text-nexus-400 mb-2">
-            <span className="text-xs font-medium uppercase tracking-wider">Más de 1 Año</span>
+            <span className="text-xs font-medium">Más de 1 Año</span>
             <div className="p-2 rounded-lg bg-nexus-800 text-nexus-300 group-hover:scale-105 transition-transform">
               <Clock className="w-4 h-4" />
             </div>
@@ -165,8 +161,8 @@ export const DashboardView: React.FC = () => {
         <div className="lg:col-span-2 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-              <h3 className="text-sm font-semibold text-nexus-100 uppercase tracking-wider">
+              <Star className="w-4 h-4 text-cyber-amber fill-cyber-amber" />
+              <h3 className="text-sm font-semibold text-nexus-100">
                 Accesos Favoritos Rápidos
               </h3>
             </div>
@@ -230,7 +226,7 @@ export const DashboardView: React.FC = () => {
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <Activity className="w-4 h-4 text-cyan-accent" />
-            <h3 className="text-sm font-semibold text-nexus-100 uppercase tracking-wider">
+            <h3 className="text-sm font-semibold text-nexus-100">
               Actividad Local Reciente
             </h3>
           </div>
@@ -248,7 +244,7 @@ export const DashboardView: React.FC = () => {
           </div>
 
           {/* Quick Generator Promo Card */}
-          <div className="p-4 rounded-xl bg-gradient-to-br from-nexus-850 to-cyan-accent/10 border border-cyan-accent/20 space-y-2">
+          <div className="p-4 rounded-xl bg-nexus-850 border border-cyan-accent/20 space-y-2">
             <div className="flex items-center gap-2 text-cyan-accent font-semibold text-xs">
               <Sparkles className="w-4 h-4" />
               <span>Generador de Contraseñas</span>

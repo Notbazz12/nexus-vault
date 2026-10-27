@@ -13,9 +13,9 @@ import { useVaultStore } from '../store/useVaultStore';
 import { CardItem, IdentityItem } from '../types';
 
 export const CardsView: React.FC = () => {
-  const { items, saveItem, toggleFavorite, moveToTrash, copySecureValue } = useVaultStore();
+  const { items, saveItem, toggleFavorite, moveToTrash, copySecureValue, activeView, setView } = useVaultStore();
 
-  const [activeTab, setActiveTab] = useState<'cards' | 'identities'>('cards');
+  const activeTab = activeView === 'identities' ? 'identities' : 'cards';
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const cards = items.filter((it): it is CardItem => it.type === 'card' && !it.isTrashed);
@@ -75,7 +75,7 @@ export const CardsView: React.FC = () => {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-nexus-750 pb-4">
         <div>
-          <h2 className="text-xl font-bold text-nexus-100 font-mono">
+          <h2 className="text-xl font-bold text-nexus-100">
             Tarjetas e Información Personal
           </h2>
           <p className="text-xs text-nexus-400">
@@ -87,7 +87,7 @@ export const CardsView: React.FC = () => {
           {activeTab === 'cards' ? (
             <button
               onClick={handleCreateMockCard}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-accent text-nexus-950 font-bold text-xs hover:brightness-110 shadow-cyber-cyan"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-accent text-nexus-950 font-bold text-xs hover:bg-electric-blue shadow-cyber-cyan"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Agregar Tarjeta</span>
@@ -95,7 +95,7 @@ export const CardsView: React.FC = () => {
           ) : (
             <button
               onClick={handleCreateMockIdentity}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-accent text-nexus-950 font-bold text-xs hover:brightness-110 shadow-cyber-cyan"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-accent text-nexus-950 font-bold text-xs hover:bg-electric-blue shadow-cyber-cyan"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Agregar Identidad</span>
@@ -107,7 +107,7 @@ export const CardsView: React.FC = () => {
       {/* Tabs */}
       <div className="flex border-b border-nexus-800 space-x-6 text-xs font-semibold">
         <button
-          onClick={() => setActiveTab('cards')}
+          onClick={() => setView('cards')}
           className={`pb-2.5 flex items-center gap-2 transition-all ${
             activeTab === 'cards'
               ? 'text-cyan-accent border-b-2 border-cyan-accent'
@@ -118,7 +118,7 @@ export const CardsView: React.FC = () => {
           <span>Tarjetas de Pago ({cards.length})</span>
         </button>
         <button
-          onClick={() => setActiveTab('identities')}
+          onClick={() => setView('identities')}
           className={`pb-2.5 flex items-center gap-2 transition-all ${
             activeTab === 'identities'
               ? 'text-cyan-accent border-b-2 border-cyan-accent'
@@ -137,7 +137,7 @@ export const CardsView: React.FC = () => {
             {cards.map((card) => (
               <div
                 key={card.id}
-                className="p-5 rounded-2xl bg-gradient-to-tr from-nexus-900 via-nexus-850 to-electric-blue/15 border border-cyan-accent/30 shadow-cyber-card relative overflow-hidden space-y-4"
+                className="p-5 rounded-2xl bg-nexus-850 border border-cyan-accent/30 shadow-cyber-card relative overflow-hidden space-y-4"
               >
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-2">
@@ -147,9 +147,9 @@ export const CardsView: React.FC = () => {
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => toggleFavorite(card.id)}
-                      className="text-nexus-400 hover:text-amber-400"
+                      className="text-nexus-400 hover:text-cyber-amber"
                     >
-                      <Star className={`w-4 h-4 ${card.isFavorite ? 'text-amber-400 fill-amber-400' : ''}`} />
+                      <Star className={`w-4 h-4 ${card.isFavorite ? 'text-cyber-amber fill-cyber-amber' : ''}`} />
                     </button>
                     <button
                       onClick={() => moveToTrash(card.id)}
@@ -161,7 +161,7 @@ export const CardsView: React.FC = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <div className="text-xs text-nexus-400 uppercase font-mono">Número de Tarjeta</div>
+                  <div className="text-xs text-nexus-400 font-mono">Número de Tarjeta</div>
                   <div className="text-lg font-mono tracking-widest text-nexus-100 flex items-center justify-between">
                     <span>{card.cardNumber}</span>
                     <button
@@ -175,11 +175,11 @@ export const CardsView: React.FC = () => {
 
                 <div className="flex justify-between items-end pt-2 text-xs font-mono border-t border-nexus-750/70">
                   <div>
-                    <div className="text-[10px] text-nexus-400 uppercase">Titular</div>
+                    <div className="text-xs text-nexus-400">Titular</div>
                     <div className="text-nexus-200 font-semibold">{card.cardholderName}</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-[10px] text-nexus-400 uppercase">Vencimiento</div>
+                    <div className="text-xs text-nexus-400">Vencimiento</div>
                     <div className="text-nexus-200 font-semibold">{card.expirationMonth}/{card.expirationYear}</div>
                   </div>
                 </div>
@@ -213,9 +213,9 @@ export const CardsView: React.FC = () => {
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => toggleFavorite(idItem.id)}
-                    className="text-nexus-400 hover:text-amber-400"
+                    className="text-nexus-400 hover:text-cyber-amber"
                   >
-                    <Star className={`w-4 h-4 ${idItem.isFavorite ? 'text-amber-400 fill-amber-400' : ''}`} />
+                    <Star className={`w-4 h-4 ${idItem.isFavorite ? 'text-cyber-amber fill-cyber-amber' : ''}`} />
                   </button>
                   <button
                     onClick={() => moveToTrash(idItem.id)}
@@ -228,25 +228,25 @@ export const CardsView: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div>
-                  <div className="text-[10px] text-nexus-500 uppercase">Nombre Completo</div>
+                  <div className="text-xs text-nexus-500">Nombre Completo</div>
                   <div className="font-medium text-nexus-200 truncate">{idItem.fullName}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] text-nexus-500 uppercase">Documento / RFC</div>
+                  <div className="text-xs text-nexus-500">Documento / RFC</div>
                   <div className="font-mono text-cyan-accent">{idItem.idNumber}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] text-nexus-500 uppercase">Teléfono</div>
+                  <div className="text-xs text-nexus-500">Teléfono</div>
                   <div className="font-mono text-nexus-300">{idItem.phone}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] text-nexus-500 uppercase">Correo</div>
+                  <div className="text-xs text-nexus-500">Correo</div>
                   <div className="font-mono text-nexus-300 truncate">{idItem.email}</div>
                 </div>
               </div>
 
               <div className="pt-2 border-t border-nexus-800 text-xs">
-                <div className="text-[10px] text-nexus-500 uppercase">Dirección</div>
+                <div className="text-xs text-nexus-500">Dirección</div>
                 <div className="text-nexus-300 leading-snug">{idItem.address}</div>
               </div>
             </div>

@@ -47,16 +47,15 @@ export const UnlockView: React.FC = () => {
   return (
     <div className="min-h-screen w-full bg-nexus-950 flex flex-col items-center justify-center p-6 select-none relative overflow-hidden">
       {/* Subtle red/cyan security glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-accent/5 rounded-full blur-3xl pointer-events-none"></div>
 
       <div className="max-w-sm w-full space-y-6 relative z-10 text-center">
         {/* Lock Icon */}
         <div className="w-16 h-16 rounded-2xl bg-nexus-900 border border-nexus-750 flex items-center justify-center mx-auto text-cyan-accent shadow-cyber-card">
-          <Lock className="w-8 h-8 text-cyan-accent animate-pulse" />
+          <Lock className="w-8 h-8 text-cyan-accent" />
         </div>
 
         <div className="space-y-1">
-          <h2 className="text-xl font-bold text-nexus-100 font-mono tracking-tight">
+          <h2 className="text-xl font-bold text-nexus-100 tracking-tight">
             Bóveda Bloqueada
           </h2>
           <p className="text-xs text-nexus-400">
@@ -101,7 +100,7 @@ export const UnlockView: React.FC = () => {
           <button
             type="submit"
             disabled={isLockedOut || busy || password.length === 0}
-            className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-cyan-accent to-electric-blue text-nexus-950 font-bold text-xs hover:brightness-110 active:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-cyber-cyan flex items-center justify-center gap-2"
+            className="w-full py-2.5 px-4 rounded-xl bg-cyan-accent hover:bg-electric-blue text-nexus-950 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-cyber-cyan flex items-center justify-center gap-2"
           >
             <KeyRound className="w-4 h-4" />
             <span>Desbloquear Bóveda</span>
@@ -116,7 +115,7 @@ export const UnlockView: React.FC = () => {
           >
             Reiniciar / Configuración inicial
           </button>
-          <span className="flex items-center gap-1 text-[10px] font-mono text-emerald-400">
+          <span className="flex items-center gap-1 text-[10px] font-mono text-cyber-green">
             <ShieldAlert className="w-3 h-3" /> Memoria Zeroize
           </span>
         </div>

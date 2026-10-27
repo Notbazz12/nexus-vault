@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import {
   Copy,
   Star,
-  Globe,
+
   ArrowUpDown,
   Check,
   AlertTriangle,
   SearchX
 } from 'lucide-react';
+import { Monogram } from '../components/Monogram';
 import { useVaultStore } from '../store/useVaultStore';
 import { ItemDetailPanel } from '../components/ItemDetailPanel';
 import { calculateEntropy, cn } from '../lib/utils';
@@ -102,10 +103,7 @@ export const PasswordsView: React.FC = () => {
                   )}
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
-                    {/* Service Icon */}
-                    <div className="w-8 h-8 rounded-lg bg-nexus-800 border border-nexus-700 flex items-center justify-center text-nexus-300 group-hover:text-cyan-accent group-hover:border-cyan-accent/30 transition-all shrink-0">
-                      <Globe className="w-4 h-4" />
-                    </div>
+                    <Monogram title={login.title} />
 
                     {/* Metadata */}
                     <div className="min-w-0 flex-1">
@@ -114,7 +112,7 @@ export const PasswordsView: React.FC = () => {
                           {login.title}
                         </span>
                         {login.isFavorite && (
-                          <Star className="w-3 h-3 text-amber-400 fill-amber-400 shrink-0" />
+                          <Star className="w-3 h-3 text-cyber-amber fill-cyber-amber shrink-0" />
                         )}
                         {isWeak && (
                           <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-cyber-amber/15 text-cyber-amber border border-cyber-amber/30 flex items-center gap-0.5 shrink-0">
@@ -142,10 +140,10 @@ export const PasswordsView: React.FC = () => {
                         e.stopPropagation();
                         toggleFavorite(login.id);
                       }}
-                      className="p-1.5 rounded-lg text-nexus-500 hover:text-amber-400 transition-colors"
+                      className="p-1.5 rounded-lg text-nexus-500 hover:text-cyber-amber transition-colors"
                       title="Favorito"
                     >
-                      <Star className={`w-3.5 h-3.5 ${login.isFavorite ? 'text-amber-400 fill-amber-400' : ''}`} />
+                      <Star className={`w-3.5 h-3.5 ${login.isFavorite ? 'text-cyber-amber fill-cyber-amber' : ''}`} />
                     </button>
 
                     <button

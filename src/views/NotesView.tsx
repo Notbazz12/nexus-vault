@@ -123,7 +123,7 @@ export const NotesView: React.FC = () => {
                   <div className="min-w-0 flex-1">
                     <div className="text-xs font-semibold truncate flex items-center gap-1.5">
                       <span>{note.title}</span>
-                      {note.isFavorite && <Star className="w-3 h-3 text-amber-400 fill-amber-400 shrink-0" />}
+                      {note.isFavorite && <Star className="w-3 h-3 text-cyber-amber fill-cyber-amber shrink-0" />}
                     </div>
                     <div className="text-[11px] text-nexus-500 truncate mt-0.5 font-sans">
                       {note.content.substring(0, 45) || '(Sin contenido)'}
@@ -157,7 +157,7 @@ export const NotesView: React.FC = () => {
                   <div>
                     <h2 className="text-base font-bold text-nexus-100 truncate flex items-center gap-2">
                       {currentNote.title}
-                      {currentNote.isFavorite && <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />}
+                      {currentNote.isFavorite && <Star className="w-3.5 h-3.5 text-cyber-amber fill-cyber-amber" />}
                     </h2>
                     <span className="text-[10px] font-mono text-nexus-400">
                       Actualizado: {formatDate(currentNote.updatedAt)}
@@ -177,7 +177,7 @@ export const NotesView: React.FC = () => {
                     </button>
                     <button
                       onClick={handleSaveEdit}
-                      className="px-3.5 py-1.5 rounded-lg bg-cyan-accent text-nexus-950 hover:brightness-110 text-xs font-bold shadow-cyber-cyan"
+                      className="px-3.5 py-1.5 rounded-lg bg-cyan-accent text-nexus-950 hover:bg-electric-blue text-xs font-bold shadow-cyber-cyan"
                     >
                       Guardar Cambios
                     </button>
@@ -186,10 +186,10 @@ export const NotesView: React.FC = () => {
                   <>
                     <button
                       onClick={() => toggleFavorite(currentNote.id)}
-                      className="p-1.5 rounded-lg bg-nexus-850 text-nexus-300 hover:text-amber-400"
+                      className="p-1.5 rounded-lg bg-nexus-850 text-nexus-300 hover:text-cyber-amber"
                       title="Favorito"
                     >
-                      <Star className={`w-4 h-4 ${currentNote.isFavorite ? 'text-amber-400 fill-amber-400' : ''}`} />
+                      <Star className={`w-4 h-4 ${currentNote.isFavorite ? 'text-cyber-amber fill-cyber-amber' : ''}`} />
                     </button>
                     <button
                       onClick={handleCopy}

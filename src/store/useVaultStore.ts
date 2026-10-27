@@ -169,7 +169,7 @@ export const useVaultStore = create<VaultStoreState>((set, get) => ({
       items: updated,
       selectedItemId: item.id,
       editingItem: null,
-      activeView: item.type === 'login' ? 'passwords' : item.type === 'note' ? 'notes' : 'cards',
+      activeView: item.type === 'login' ? 'passwords' : item.type === 'note' ? 'notes' : item.type === 'identity' ? 'identities' : 'cards',
     };
     });
     persistItem(item.id);

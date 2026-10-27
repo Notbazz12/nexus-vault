@@ -238,7 +238,7 @@ User: deployer`,
 
 export const DEFAULT_SETTINGS: VaultSettings = {
   language: 'es',
-  theme: 'dark',
+  theme: 'light',
   autoLockMinutes: 15,
   clipboardClearSeconds: 30,
   startWithWindows: false,

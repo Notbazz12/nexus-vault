@@ -47,7 +47,7 @@ export const SettingsView: React.FC = () => {
     <div className="flex-1 overflow-y-auto p-6 select-none bg-nexus-950 space-y-6">
       {/* Header */}
       <div className="border-b border-nexus-750 pb-4">
-        <h2 className="text-xl font-bold text-nexus-100 font-mono">
+        <h2 className="text-xl font-bold text-nexus-100">
           Configuración General del Sistema
         </h2>
         <p className="text-xs text-nexus-400">
@@ -58,7 +58,7 @@ export const SettingsView: React.FC = () => {
       <div className="max-w-2xl space-y-6">
         {/* Security & Auto-Lock */}
         <div className="p-5 rounded-2xl bg-nexus-900 border border-nexus-750 space-y-4">
-          <div className="flex items-center gap-2 text-xs font-bold text-nexus-200 uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-xs font-bold text-nexus-200">
             <Lock className="w-4 h-4 text-cyan-accent" />
             <span>Seguridad y Bloqueo de Bóveda</span>
           </div>
@@ -114,7 +114,7 @@ export const SettingsView: React.FC = () => {
 
         {/* Change Master Password (Rotation) */}
         <div className="p-5 rounded-2xl bg-nexus-900 border border-nexus-750 space-y-4">
-          <div className="flex items-center gap-2 text-xs font-bold text-nexus-200 uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-xs font-bold text-nexus-200">
             <KeyRound className="w-4 h-4 text-cyan-accent" />
             <span>Rotación de Contraseña Maestra</span>
           </div>
@@ -127,7 +127,7 @@ export const SettingsView: React.FC = () => {
             <div className={`p-3 rounded-xl border text-xs flex items-center gap-2 ${
               rotationStatus.startsWith('Error')
                 ? 'bg-cyber-red/15 border-cyber-red/30 text-cyber-red'
-                : 'bg-emerald-950/40 border-emerald-500/40 text-emerald-400'
+                : 'bg-cyber-green/10 border-cyber-green/40 text-cyber-green'
             }`}>
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{rotationStatus}</span>
@@ -173,7 +173,7 @@ export const SettingsView: React.FC = () => {
 
         {/* Appearance & System */}
         <div className="p-5 rounded-2xl bg-nexus-900 border border-nexus-750 space-y-4">
-          <div className="text-xs font-bold text-nexus-200 uppercase tracking-wider">
+          <div className="text-xs font-bold text-nexus-200">
             Apariencia e Idioma
           </div>
 
@@ -224,7 +224,7 @@ export const SettingsView: React.FC = () => {
 
         {/* Keyboard Shortcuts */}
         <div className="p-5 rounded-2xl bg-nexus-900 border border-nexus-750 space-y-3">
-          <div className="flex items-center gap-2 text-xs font-bold text-nexus-200 uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-xs font-bold text-nexus-200">
             <Keyboard className="w-4 h-4 text-cyan-accent" />
             <span>Atajos de Teclado Globales</span>
           </div>

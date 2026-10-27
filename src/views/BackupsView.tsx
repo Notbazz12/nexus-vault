@@ -68,7 +68,7 @@ export const BackupsView: React.FC = () => {
       {/* Header */}
       <div className="border-b border-nexus-750 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-nexus-100 font-mono">
+          <h2 className="text-xl font-bold text-nexus-100">
             Copias de Seguridad Cifradas
           </h2>
           <p className="text-xs text-nexus-400">
@@ -79,7 +79,7 @@ export const BackupsView: React.FC = () => {
         <button
           onClick={handleCreateBackup}
           disabled={creating}
-          className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-accent to-electric-blue text-nexus-950 font-bold text-xs hover:brightness-110 active:brightness-95 transition-all shadow-cyber-cyan flex items-center gap-2 self-start sm:self-auto shrink-0"
+          className="px-4 py-2 rounded-xl bg-cyan-accent hover:bg-electric-blue text-nexus-950 font-bold text-xs transition-all shadow-cyber-cyan flex items-center gap-2 self-start sm:self-auto shrink-0"
         >
           <HardDrive className="w-4 h-4" />
           <span>{creating ? 'Generando Copia Cifrada...' : 'Crear Copia Ahora'}</span>
@@ -87,7 +87,7 @@ export const BackupsView: React.FC = () => {
       </div>
 
       {successMessage && (
-        <div className="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-xs text-emerald-400 flex items-center gap-2">
+        <div className="p-4 rounded-xl bg-cyber-green/10 border border-cyber-green/40 text-xs text-cyber-green flex items-center gap-2">
           <CheckCircle2 className="w-5 h-5 shrink-0" />
           <span>{successMessage}</span>
         </div>
@@ -109,7 +109,7 @@ export const BackupsView: React.FC = () => {
 
       {/* Backups List */}
       <div className="space-y-3">
-        <h3 className="text-xs font-bold text-nexus-200 uppercase tracking-wider">
+        <h3 className="text-xs font-bold text-nexus-200">
           Historial de Respaldos Verificados ({backups.length})
         </h3>
 
@@ -121,7 +121,7 @@ export const BackupsView: React.FC = () => {
             >
               <div className="space-y-1">
                 <div className="flex items-center gap-2 text-xs font-bold text-nexus-100 font-mono">
-                  <FileCheck className="w-4 h-4 text-emerald-400" />
+                  <FileCheck className="w-4 h-4 text-cyber-green" />
                   <span>{b.filename}</span>
                   <span className="text-[10px] px-1.5 py-0.2 rounded bg-nexus-800 text-nexus-400 font-sans">
                     {b.size}

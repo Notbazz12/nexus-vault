@@ -129,7 +129,7 @@ export const EditItemView: React.FC = () => {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-nexus-750 pb-4">
           <div>
-            <h2 className="text-xl font-bold text-nexus-100 font-mono">
+            <h2 className="text-xl font-bold text-nexus-100">
               {editingItem ? 'Editar Registro' : 'Nuevo Registro'}
             </h2>
             <p className="text-xs text-nexus-400">
@@ -147,7 +147,7 @@ export const EditItemView: React.FC = () => {
             </button>
             <button
               onClick={handleSubmit}
-              className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-cyan-accent to-electric-blue text-nexus-950 font-bold text-xs hover:brightness-110 active:brightness-95 transition-all shadow-cyber-cyan flex items-center gap-1.5"
+              className="px-4 py-1.5 rounded-lg bg-cyan-accent hover:bg-electric-blue text-nexus-950 font-bold text-xs transition-all shadow-cyber-cyan flex items-center gap-1.5"
             >
               <Save className="w-3.5 h-3.5" />
               <span>Guardar Registro</span>

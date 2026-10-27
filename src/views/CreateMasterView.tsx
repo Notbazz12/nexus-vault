@@ -64,7 +64,7 @@ export const CreateMasterView: React.FC = () => {
           <div className="w-12 h-12 rounded-xl bg-nexus-900 border border-cyan-accent/30 flex items-center justify-center mx-auto text-cyan-accent shadow-cyber-cyan">
             <KeyRound className="w-6 h-6" />
           </div>
-          <h2 className="text-2xl font-bold text-nexus-100 font-mono">
+          <h2 className="text-2xl font-bold text-nexus-100">
             Crear Contraseña Maestra
           </h2>
           <p className="text-xs text-nexus-400">
@@ -167,7 +167,7 @@ export const CreateMasterView: React.FC = () => {
           <button
             type="submit"
             disabled={busy || !passwordsMatch || !acknowledged || !isStrongEnough}
-            className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-cyan-accent to-electric-blue text-nexus-950 font-bold text-xs hover:brightness-110 active:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-cyber-cyan flex items-center justify-center gap-2"
+            className="w-full py-3 px-4 rounded-xl bg-cyan-accent hover:bg-electric-blue text-nexus-950 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-cyber-cyan flex items-center justify-center gap-2"
           >
             <Shield className="w-4 h-4" />
             <span>Inicializar Bóveda Cifrada</span>

@@ -21,6 +21,7 @@ import {
   ShieldCheck,
   Check
 } from 'lucide-react';
+import { Monogram } from './Monogram';
 import { useVaultStore } from '../store/useVaultStore';
 import { calculateEntropy, formatDate, isSafeUrl } from '../lib/utils';
 import { AnyVaultItem, LoginItem, CardItem, NoteItem, IdentityItem } from '../types';
@@ -82,7 +83,7 @@ export const ItemDetailPanel: React.FC<ItemDetailPanelProps> = ({ item }) => {
             <div className="flex items-center gap-3 min-w-0">
               <User className="w-4 h-4 text-nexus-400 shrink-0" />
               <div className="min-w-0">
-                <div className="text-[10px] text-nexus-500 font-medium uppercase tracking-wider">Usuario</div>
+                <div className="text-xs text-nexus-500 font-medium">Usuario</div>
                 <div className="text-xs font-mono text-nexus-100 truncate">{login.username}</div>
               </div>
             </div>
@@ -101,7 +102,7 @@ export const ItemDetailPanel: React.FC<ItemDetailPanelProps> = ({ item }) => {
             <div className="flex items-center gap-3 min-w-0">
               <Mail className="w-4 h-4 text-nexus-400 shrink-0" />
               <div className="min-w-0">
-                <div className="text-[10px] text-nexus-500 font-medium uppercase tracking-wider">Correo</div>
+                <div className="text-xs text-nexus-500 font-medium">Correo</div>
                 <div className="text-xs font-mono text-nexus-100 truncate">{login.email}</div>
               </div>
             </div>
@@ -121,7 +122,7 @@ export const ItemDetailPanel: React.FC<ItemDetailPanelProps> = ({ item }) => {
             <div className="flex items-center gap-3 min-w-0">
               <Lock className="w-4 h-4 text-cyan-accent shrink-0" />
               <div className="min-w-0">
-                <div className="text-[10px] text-nexus-500 font-medium uppercase tracking-wider flex items-center gap-2">
+                <div className="text-xs text-nexus-500 font-medium flex items-center gap-2">
                   <span>Contraseña</span>
                   <span
                     className="text-[9px] font-mono px-1.5 py-0.2 rounded font-semibold"
@@ -160,7 +161,7 @@ export const ItemDetailPanel: React.FC<ItemDetailPanelProps> = ({ item }) => {
             <div className="flex items-center gap-3 min-w-0">
               <Globe className="w-4 h-4 text-nexus-400 shrink-0" />
               <div className="min-w-0">
-                <div className="text-[10px] text-nexus-500 font-medium uppercase tracking-wider">Sitio Web / URL</div>
+                <div className="text-xs text-nexus-500 font-medium">Sitio Web / URL</div>
                 <a
                   href={login.url}
                   target="_blank"
@@ -197,13 +198,13 @@ export const ItemDetailPanel: React.FC<ItemDetailPanelProps> = ({ item }) => {
         {/* Custom Fields */}
         {login.customFields && login.customFields.length > 0 && (
           <div className="space-y-2 pt-2 border-t border-nexus-750/60">
-            <div className="text-[11px] font-semibold text-nexus-400 uppercase tracking-wider">
+            <div className="text-[11px] font-semibold text-nexus-400">
               Campos Personalizados
             </div>
             {login.customFields.map((cf) => (
               <div key={cf.id} className="p-2.5 rounded-lg bg-nexus-800/60 border border-nexus-750 flex items-center justify-between">
                 <div>
-                  <div className="text-[10px] text-nexus-500">{cf.label}</div>
+                  <div className="text-xs text-nexus-500">{cf.label}</div>
                   <div className="text-xs font-mono text-nexus-200">
                     {cf.isSecret && !showPassword ? '••••••••' : cf.value}
                   </div>
@@ -226,7 +227,7 @@ export const ItemDetailPanel: React.FC<ItemDetailPanelProps> = ({ item }) => {
     <div className="space-y-3">
       <div className="p-4 rounded-xl bg-nexus-800/80 border border-nexus-750 space-y-2">
         <div className="flex items-center justify-between border-b border-nexus-750 pb-2">
-          <span className="text-[11px] font-semibold text-nexus-400 uppercase tracking-wider">Contenido Seguro</span>
+          <span className="text-[11px] font-semibold text-nexus-400">Contenido Seguro</span>
           <button
             onClick={() => handleCopy(note.content, 'Nota')}
             className="flex items-center gap-1 text-[11px] text-cyan-accent hover:underline"
@@ -244,10 +245,10 @@ export const ItemDetailPanel: React.FC<ItemDetailPanelProps> = ({ item }) => {
 
   const renderCardDetails = (card: CardItem) => (
     <div className="space-y-4">
-      <div className="p-5 rounded-2xl bg-gradient-to-tr from-nexus-850 via-nexus-800 to-electric-blue/20 border border-cyan-accent/30 shadow-cyber-card relative overflow-hidden">
+      <div className="p-5 rounded-2xl bg-nexus-850 border border-cyan-accent/30 shadow-cyber-card relative overflow-hidden">
         <div className="flex justify-between items-start mb-6">
           <CreditCard className="w-8 h-8 text-cyan-accent" />
-          <span className="text-xs font-bold font-mono uppercase px-2 py-0.5 rounded bg-nexus-900/80 text-cyan-accent border border-cyan-accent/30">
+          <span className="text-xs font-bold font-mono px-2 py-0.5 rounded bg-nexus-900/80 text-cyan-accent border border-cyan-accent/30">
             {card.brand}
           </span>
         </div>
@@ -264,11 +265,11 @@ export const ItemDetailPanel: React.FC<ItemDetailPanelProps> = ({ item }) => {
           </div>
           <div className="flex justify-between items-end pt-2 text-xs font-mono">
             <div>
-              <div className="text-[9px] text-nexus-400 uppercase">Titular</div>
+              <div className="text-xs text-nexus-400">Titular</div>
               <div className="text-nexus-200 font-semibold">{card.cardholderName}</div>
             </div>
             <div className="text-right">
-              <div className="text-[9px] text-nexus-400 uppercase">Expira</div>
+              <div className="text-xs text-nexus-400">Expira</div>
               <div className="text-nexus-200 font-semibold">{card.expirationMonth}/{card.expirationYear}</div>
             </div>
           </div>
@@ -283,7 +284,7 @@ export const ItemDetailPanel: React.FC<ItemDetailPanelProps> = ({ item }) => {
   const renderIdentityDetails = (idItem: IdentityItem) => (
     <div className="space-y-3">
       <div className="p-3 rounded-xl bg-nexus-800/80 border border-nexus-750 space-y-2">
-        <div className="text-[10px] text-nexus-500 font-medium uppercase tracking-wider">Nombre Completo</div>
+        <div className="text-xs text-nexus-500 font-medium">Nombre Completo</div>
         <div className="text-xs font-medium text-nexus-100 flex items-center justify-between">
           <span>{idItem.fullName}</span>
           <button onClick={() => handleCopy(idItem.fullName, 'Nombre')} className="text-nexus-400 hover:text-cyan-accent">
@@ -293,7 +294,7 @@ export const ItemDetailPanel: React.FC<ItemDetailPanelProps> = ({ item }) => {
       </div>
 
       <div className="p-3 rounded-xl bg-nexus-800/80 border border-nexus-750 space-y-2">
-        <div className="text-[10px] text-nexus-500 font-medium uppercase tracking-wider">Identificación Oficial / Fiscal</div>
+        <div className="text-xs text-nexus-500 font-medium">Identificación Oficial / Fiscal</div>
         <div className="text-xs font-mono text-cyan-accent flex items-center justify-between">
           <span>{idItem.idNumber}</span>
           <button onClick={() => handleCopy(idItem.idNumber, 'ID')} className="text-nexus-400 hover:text-cyan-accent">
@@ -303,7 +304,7 @@ export const ItemDetailPanel: React.FC<ItemDetailPanelProps> = ({ item }) => {
       </div>
 
       <div className="p-3 rounded-xl bg-nexus-800/80 border border-nexus-750 space-y-2">
-        <div className="text-[10px] text-nexus-500 font-medium uppercase tracking-wider">Teléfono</div>
+        <div className="text-xs text-nexus-500 font-medium">Teléfono</div>
         <div className="text-xs font-mono text-nexus-200 flex items-center justify-between">
           <span>{idItem.phone}</span>
           <button onClick={() => handleCopy(idItem.phone, 'Teléfono')} className="text-nexus-400 hover:text-cyan-accent">
@@ -313,31 +314,30 @@ export const ItemDetailPanel: React.FC<ItemDetailPanelProps> = ({ item }) => {
       </div>
 
       <div className="p-3 rounded-xl bg-nexus-800/80 border border-nexus-750 space-y-2">
-        <div className="text-[10px] text-nexus-500 font-medium uppercase tracking-wider">Dirección Postal</div>
+        <div className="text-xs text-nexus-500 font-medium">Dirección Postal</div>
         <div className="text-xs text-nexus-200 leading-snug">{idItem.address}</div>
       </div>
     </div>
   );
 
   return (
-    <div className="w-96 border-l border-nexus-750/70 bg-nexus-900/95 flex flex-col h-full overflow-hidden select-none">
+    <div className="w-96 border-l border-nexus-750/70 bg-nexus-850 flex flex-col h-full overflow-hidden select-none">
       {/* Header Panel */}
       <div className="p-4 border-b border-nexus-750/70 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-nexus-800 border border-nexus-700 flex items-center justify-center text-cyan-accent">
-              {item.type === 'login' && <Globe className="w-4 h-4" />}
+            {item.type === "login" ? <Monogram title={item.title} size="md" /> : <div className="w-11 h-11 rounded-lg bg-cyan-accent/10 flex items-center justify-center text-cyan-accent">
               {item.type === 'note' && <FileText className="w-4 h-4" />}
               {item.type === 'card' && <CreditCard className="w-4 h-4" />}
               {item.type === 'identity' && <User className="w-4 h-4" />}
-            </div>
+            </div>}
             <div>
-              <h3 className="text-sm font-bold text-nexus-100 leading-tight truncate max-w-[180px]">
+              <h3 className="text-base font-semibold text-nexus-100 leading-tight truncate max-w-[180px]">
                 {item.title}
               </h3>
               <div className="flex items-center gap-2 mt-0.5">
                 {folder && (
-                  <span className="text-[10px] text-nexus-400 flex items-center gap-1 font-mono">
+                  <span className="text-xs text-nexus-400 flex items-center gap-1 font-mono">
                     <FolderIcon className="w-3 h-3" />
                     {folder.name}
                   </span>
@@ -349,10 +349,10 @@ export const ItemDetailPanel: React.FC<ItemDetailPanelProps> = ({ item }) => {
           <div className="flex items-center gap-1">
             <button
               onClick={() => toggleFavorite(item.id)}
-              className="p-1.5 rounded-lg hover:bg-nexus-800 text-nexus-400 hover:text-amber-400 transition-all"
+              className="p-1.5 rounded-lg hover:bg-nexus-800 text-nexus-400 hover:text-cyber-amber transition-all"
               title={item.isFavorite ? 'Quitar de favoritos' : 'Marcar como favorito'}
             >
-              <Star className={`w-4 h-4 ${item.isFavorite ? 'text-amber-400 fill-amber-400' : ''}`} />
+              <Star className={`w-4 h-4 ${item.isFavorite ? 'text-cyber-amber fill-cyber-amber' : ''}`} />
             </button>
             <button
               onClick={() => setEditingItem(item)}
@@ -372,7 +372,7 @@ export const ItemDetailPanel: React.FC<ItemDetailPanelProps> = ({ item }) => {
               <>
                 <button
                   onClick={() => restoreFromTrash(item.id)}
-                  className="p-1.5 rounded-lg hover:bg-emerald-950/40 text-emerald-400 transition-all"
+                  className="p-1.5 rounded-lg hover:bg-cyber-green/10 text-cyber-green transition-all"
                   title="Restaurar de la papelera"
                 >
                   <RotateCcw className="w-4 h-4" />
@@ -408,7 +408,7 @@ export const ItemDetailPanel: React.FC<ItemDetailPanelProps> = ({ item }) => {
         {/* Private Notes (if login has notes) */}
         {item.type === 'login' && (item as LoginItem).notes && (
           <div className="p-3 rounded-xl bg-nexus-800/60 border border-nexus-750 space-y-1.5">
-            <div className="text-[10px] text-nexus-500 font-medium uppercase tracking-wider">Notas Privadas</div>
+            <div className="text-xs text-nexus-500 font-medium">Notas Privadas</div>
             <div className="text-xs text-nexus-300 whitespace-pre-wrap">{(item as LoginItem).notes}</div>
           </div>
         )}
@@ -416,7 +416,7 @@ export const ItemDetailPanel: React.FC<ItemDetailPanelProps> = ({ item }) => {
         {/* Tags */}
         {item.tags && item.tags.length > 0 && (
           <div className="space-y-1.5 pt-2">
-            <div className="text-[10px] text-nexus-500 font-medium uppercase tracking-wider flex items-center gap-1.5">
+            <div className="text-xs text-nexus-500 font-medium flex items-center gap-1.5">
               <Tag className="w-3 h-3" />
               <span>Etiquetas</span>
             </div>
@@ -434,7 +434,7 @@ export const ItemDetailPanel: React.FC<ItemDetailPanelProps> = ({ item }) => {
         )}
 
         {/* Metadata Timestamps */}
-        <div className="p-3 rounded-xl bg-nexus-950/60 border border-nexus-800/80 space-y-1 text-[10px] text-nexus-500 font-mono">
+        <div className="p-3 rounded-xl bg-nexus-950/60 border border-nexus-800/80 space-y-1 text-xs text-nexus-500 font-mono">
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-1">
               <Calendar className="w-3 h-3" /> Creado:
