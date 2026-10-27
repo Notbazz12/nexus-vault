@@ -16,7 +16,9 @@ export const CreateMasterView: React.FC = () => {
   const passwordsMatch = password.length > 0 && password === confirmPassword;
   const isStrongEnough = entropy.bits >= 50;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [busy, setBusy] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!password) {
       setError('Por favor introduce una contraseña maestra.');
@@ -36,7 +38,13 @@ export const CreateMasterView: React.FC = () => {
     }
 
     setError(null);
-    initializeVault(password);
+    setBusy(true);
+    try {
+      await initializeVault(password);
+    } catch (err) {
+      setError(`No se pudo crear la bóveda: ${err}`);
+      setBusy(false);
+    }
   };
 
   return (
@@ -158,7 +166,7 @@ export const CreateMasterView: React.FC = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={!passwordsMatch || !acknowledged || !isStrongEnough}
+            disabled={busy || !passwordsMatch || !acknowledged || !isStrongEnough}
             className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-cyan-accent to-electric-blue text-nexus-950 font-bold text-xs hover:brightness-110 active:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-cyber-cyan flex items-center justify-center gap-2"
           >
             <Shield className="w-4 h-4" />

@@ -8,8 +8,22 @@ import {
   VaultStatus,
   ViewType
 } from '../types';
-import { DEFAULT_SETTINGS, INITIAL_FOLDERS, INITIAL_ITEMS } from '../mock/vaultData';
+import { DEFAULT_SETTINGS, INITIAL_FOLDERS } from '../mock/vaultData';
 import { calculateEntropy, copyToClipboard } from '../lib/utils';
+import { vaultApi } from '../lib/vaultApi';
+
+const SETTINGS_ID = 'settings';
+
+const reportPersistError = (e: unknown) =>
+  useVaultStore.setState({ clipboardNotification: `Error al guardar en la bóveda: ${e}` });
+
+/** Writes the current in-memory version of an item to the encrypted vault. */
+const persistItem = (id: string) => {
+  const item = useVaultStore.getState().items.find((it) => it.id === id);
+  if (item) vaultApi.put(item.id, 'item', item).catch(reportPersistError);
+};
+
+let clipboardTimer: ReturnType<typeof setTimeout> | undefined;
 
 interface VaultStoreState {
   vaultStatus: VaultStatus;
@@ -40,9 +54,12 @@ interface VaultStoreState {
   deletePermanently: (id: string) => void;
   saveItem: (item: AnyVaultItem) => void;
   duplicateItem: (id: string) => void;
+  bootstrap: () => Promise<void>;
+  loadVault: () => Promise<void>;
   lockVault: () => void;
-  unlockVault: (masterPassword?: string) => boolean;
-  initializeVault: (masterPassword: string) => void;
+  unlockVault: (masterPassword: string) => Promise<boolean>;
+  initializeVault: (masterPassword: string) => Promise<void>;
+  changeMasterPassword: (oldPassword: string, newPassword: string) => Promise<void>;
   updateSettings: (newSettings: Partial<VaultSettings>) => void;
   copySecureValue: (text: string, label: string) => Promise<boolean>;
   getSecurityHealth: () => SecurityHealthSummary;
@@ -50,16 +67,16 @@ interface VaultStoreState {
 }
 
 export const useVaultStore = create<VaultStoreState>((set, get) => ({
-  vaultStatus: 'unlocked', // Default unlocked with mock data for exploration; can lock anytime
-  activeView: 'dashboard',
-  selectedItemId: INITIAL_ITEMS[0].id,
+  vaultStatus: 'locked', // Real status arrives from bootstrap()
+  activeView: 'unlock',
+  selectedItemId: null,
   editingItem: null,
   searchQuery: '',
   activeFolderId: null,
   filterOnlyFavorites: false,
   filterOnlyTrash: false,
-  items: INITIAL_ITEMS,
-  folders: INITIAL_FOLDERS,
+  items: [],
+  folders: [],
   settings: DEFAULT_SETTINGS,
   clipboardNotification: null,
   recentActivity: [
@@ -103,33 +120,46 @@ export const useVaultStore = create<VaultStoreState>((set, get) => ({
     activeView: 'passwords'
   }),
 
-  toggleFavorite: (id) => set((state) => ({
-    items: state.items.map((it) =>
-      it.id === id ? { ...it, isFavorite: !it.isFavorite, updatedAt: new Date().toISOString() } : it
-    ),
-  })),
+  toggleFavorite: (id) => {
+    set((state) => ({
+      items: state.items.map((it) =>
+        it.id === id ? { ...it, isFavorite: !it.isFavorite, updatedAt: new Date().toISOString() } : it
+      ),
+    }));
+    persistItem(id);
+  },
 
-  moveToTrash: (id) => set((state) => ({
-    items: state.items.map((it) =>
-      it.id === id ? { ...it, isTrashed: true, updatedAt: new Date().toISOString() } : it
-    ),
-  })),
+  moveToTrash: (id) => {
+    set((state) => ({
+      items: state.items.map((it) =>
+        it.id === id ? { ...it, isTrashed: true, updatedAt: new Date().toISOString() } : it
+      ),
+    }));
+    persistItem(id);
+  },
 
-  restoreFromTrash: (id) => set((state) => ({
-    items: state.items.map((it) =>
-      it.id === id ? { ...it, isTrashed: false, updatedAt: new Date().toISOString() } : it
-    ),
-  })),
+  restoreFromTrash: (id) => {
+    set((state) => ({
+      items: state.items.map((it) =>
+        it.id === id ? { ...it, isTrashed: false, updatedAt: new Date().toISOString() } : it
+      ),
+    }));
+    persistItem(id);
+  },
 
-  deletePermanently: (id) => set((state) => {
-    const newItems = state.items.filter((it) => it.id !== id);
-    return {
-      items: newItems,
-      selectedItemId: state.selectedItemId === id ? (newItems[0]?.id || null) : state.selectedItemId
-    };
-  }),
+  deletePermanently: (id) => {
+    set((state) => {
+      const newItems = state.items.filter((it) => it.id !== id);
+      return {
+        items: newItems,
+        selectedItemId: state.selectedItemId === id ? (newItems[0]?.id || null) : state.selectedItemId
+      };
+    });
+    vaultApi.remove(id).catch(reportPersistError);
+  },
 
-  saveItem: (item) => set((state) => {
+  saveItem: (item) => {
+    set((state) => {
     const exists = state.items.some((it) => it.id === item.id);
     const updated = exists
       ? state.items.map((it) => it.id === item.id ? { ...item, updatedAt: new Date().toISOString() } : it)
@@ -141,11 +171,13 @@ export const useVaultStore = create<VaultStoreState>((set, get) => ({
       editingItem: null,
       activeView: item.type === 'login' ? 'passwords' : item.type === 'note' ? 'notes' : 'cards',
     };
-  }),
+    });
+    persistItem(item.id);
+  },
 
-  duplicateItem: (id) => set((state) => {
-    const original = state.items.find((it) => it.id === id);
-    if (!original) return state;
+  duplicateItem: (id) => {
+    const original = get().items.find((it) => it.id === id);
+    if (!original) return;
 
     const copy: AnyVaultItem = {
       ...JSON.parse(JSON.stringify(original)),
@@ -155,15 +187,39 @@ export const useVaultStore = create<VaultStoreState>((set, get) => ({
       updatedAt: new Date().toISOString(),
     };
 
-    return {
+    set((state) => ({
       items: [copy, ...state.items],
       selectedItemId: copy.id,
-    };
-  }),
+    }));
+    persistItem(copy.id);
+  },
 
-  lockVault: () => set({
+  bootstrap: async () => {
+    const status = await vaultApi.status();
+    set({ vaultStatus: status, activeView: status === 'uninitialized' ? 'welcome' : status === 'locked' ? 'unlock' : 'dashboard' });
+    if (status === 'unlocked') await get().loadVault();
+  },
+
+  loadVault: async () => {
+    const records = await vaultApi.list();
+    const parse = (kind: string) => records.filter((r) => r.kind === kind).map((r) => JSON.parse(r.json));
+    const [savedSettings] = parse('settings');
+    const settings: VaultSettings = { ...DEFAULT_SETTINGS, ...savedSettings };
+    document.documentElement.classList.toggle('dark', settings.theme === 'dark');
+    set({
+      items: parse('item'),
+      folders: parse('folder'),
+      settings,
+    });
+  },
+
+  lockVault: () => {
+    vaultApi.lock().catch(reportPersistError);
+    set({
     vaultStatus: 'locked',
     activeView: 'unlock',
+    items: [],
+    folders: [],
     selectedItemId: null,
     editingItem: null,
     clipboardNotification: null,
@@ -171,18 +227,30 @@ export const useVaultStore = create<VaultStoreState>((set, get) => ({
     filterOnlyFavorites: false,
     filterOnlyTrash: false,
     activeFolderId: null,
-  }),
-
-  unlockVault: (masterPassword) => {
-    // Phase 01: mock verification (accepts non-empty password)
-    if (!masterPassword || masterPassword.length >= 4) {
-      set({ vaultStatus: 'unlocked', activeView: 'dashboard' });
-      return true;
-    }
-    return false;
+    });
   },
 
-  initializeVault: (_masterPassword) => {
+  unlockVault: async (masterPassword) => {
+    try {
+      await vaultApi.unlock(masterPassword);
+    } catch {
+      return false;
+    }
+    await get().loadVault();
+    set({ vaultStatus: 'unlocked', activeView: 'dashboard' });
+    return true;
+  },
+
+  initializeVault: async (masterPassword) => {
+    await vaultApi.create(masterPassword);
+    if (!vaultApi.isDemo) {
+      // Fresh real vault: seed default folders and settings, no mock credentials.
+      await Promise.all([
+        ...INITIAL_FOLDERS.map((f) => vaultApi.put(f.id, 'folder', { ...f, itemCount: 0 })),
+        vaultApi.put(SETTINGS_ID, 'settings', DEFAULT_SETTINGS),
+      ]);
+    }
+    await get().loadVault();
     set({
       vaultStatus: 'unlocked',
       activeView: 'dashboard',
@@ -193,26 +261,29 @@ export const useVaultStore = create<VaultStoreState>((set, get) => ({
     });
   },
 
-  updateSettings: (newSettings) => set((state) => {
-    const updated = { ...state.settings, ...newSettings };
+  changeMasterPassword: (oldPassword, newPassword) => vaultApi.changePassword(oldPassword, newPassword),
+
+  updateSettings: (newSettings) => {
+    const updated = { ...get().settings, ...newSettings };
     if (newSettings.theme) {
-      const root = document.documentElement;
-      if (newSettings.theme === 'dark') {
-        root.classList.add('dark');
-      } else {
-        root.classList.remove('dark');
-      }
+      document.documentElement.classList.toggle('dark', newSettings.theme === 'dark');
     }
-    return { settings: updated };
-  }),
+    set({ settings: updated });
+    vaultApi.put(SETTINGS_ID, 'settings', updated).catch(reportPersistError);
+  },
 
   copySecureValue: async (text: string, label: string) => {
     const success = await copyToClipboard(text);
     if (success) {
-      set({ clipboardNotification: `${label} copiado. Se borrará en ${get().settings.clipboardClearSeconds}s.` });
+      const seconds = get().settings.clipboardClearSeconds;
+      set({ clipboardNotification: `${label} copiado. Se borrará en ${seconds}s.` });
       setTimeout(() => {
         set({ clipboardNotification: null });
       }, 3500);
+      clearTimeout(clipboardTimer);
+      clipboardTimer = setTimeout(() => {
+        navigator.clipboard.writeText('').catch(() => {});
+      }, seconds * 1000);
     }
     return success;
   },

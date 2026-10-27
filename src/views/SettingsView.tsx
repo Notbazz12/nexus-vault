@@ -12,14 +12,14 @@ import {
 import { useVaultStore } from '../store/useVaultStore';
 
 export const SettingsView: React.FC = () => {
-  const { settings, updateSettings, lockVault } = useVaultStore();
+  const { settings, updateSettings, lockVault, changeMasterPassword } = useVaultStore();
 
   const [currentMasterPass, setCurrentMasterPass] = useState('');
   const [newMasterPass, setNewMasterPass] = useState('');
   const [confirmMasterPass, setConfirmMasterPass] = useState('');
   const [rotationStatus, setRotationStatus] = useState<string | null>(null);
 
-  const handleRotateMasterPassword = (e: React.FormEvent) => {
+  const handleRotateMasterPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newMasterPass.length < 10) {
       setRotationStatus('Error: La nueva contraseña maestra debe tener al menos 10 caracteres.');
@@ -30,6 +30,12 @@ export const SettingsView: React.FC = () => {
       return;
     }
 
+    try {
+      await changeMasterPassword(currentMasterPass, newMasterPass);
+    } catch (err) {
+      setRotationStatus(`Error: ${err}`);
+      return;
+    }
     setRotationStatus('Rotación de clave exitosa: Clave DEK re-cifrada con nueva KEK Argon2id.');
     setCurrentMasterPass('');
     setNewMasterPass('');

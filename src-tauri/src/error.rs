@@ -31,4 +31,16 @@ pub enum CryptoError {
 
     #[error("Demasiados intentos fallidos de autenticación. Bloqueo temporal activado.")]
     RateLimited,
+
+    #[error("La bóveda ya está inicializada")]
+    AlreadyInitialized,
+
+    #[error("La bóveda no está inicializada")]
+    NotInitialized,
+
+    #[error("Tipo de registro no válido")]
+    InvalidRecordKind,
+
+    #[error("Error de almacenamiento: {0}")]
+    Storage(String),
 }

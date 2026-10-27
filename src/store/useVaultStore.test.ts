@@ -1,7 +1,27 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useVaultStore } from './useVaultStore';
 import { INITIAL_ITEMS, INITIAL_FOLDERS } from '../mock/vaultData';
 import { LoginItem } from '../types';
+import { vaultApi } from '../lib/vaultApi';
+
+vi.mock('../lib/vaultApi', () => ({
+  vaultApi: {
+    isDemo: false,
+    status: vi.fn(async () => 'locked'),
+    create: vi.fn(async () => {}),
+    unlock: vi.fn(async (pw: string) => {
+      if (pw !== 'master-password-1234') throw 'Contraseña maestra incorrecta';
+    }),
+    lock: vi.fn(async () => {}),
+    changePassword: vi.fn(async () => {}),
+    list: vi.fn(async () => [
+      { id: 'item-1', kind: 'item', json: JSON.stringify(INITIAL_ITEMS[0]) },
+      { id: 'settings', kind: 'settings', json: JSON.stringify({ autoLockMinutes: 5 }) },
+    ]),
+    put: vi.fn(async () => {}),
+    remove: vi.fn(async () => {}),
+  },
+}));
 
 describe('Gestor de Estado de Bóveda (Zustand Store)', () => {
   beforeEach(() => {
@@ -71,6 +91,7 @@ describe('Gestor de Estado de Bóveda (Zustand Store)', () => {
     let found = useVaultStore.getState().items.find((i) => i.id === testItem.id);
     expect(found).toBeDefined();
     expect(found?.title).toBe('Servicio de Prueba Unitario');
+    expect(vaultApi.put).toHaveBeenCalledWith(testItem.id, 'item', expect.objectContaining({ title: testItem.title }));
 
     // Duplicate
     useVaultStore.getState().duplicateItem(testItem.id);
@@ -91,9 +112,10 @@ describe('Gestor de Estado de Bóveda (Zustand Store)', () => {
     useVaultStore.getState().deletePermanently(testItem.id);
     found = useVaultStore.getState().items.find((i) => i.id === testItem.id);
     expect(found).toBeUndefined();
+    expect(vaultApi.remove).toHaveBeenCalledWith(testItem.id);
   });
 
-  it('Gestiona transiciones seguras de bloqueo y desbloqueo de la bóveda purgando secretos de la interfaz', () => {
+  it('Gestiona transiciones seguras de bloqueo y desbloqueo de la bóveda purgando secretos de la interfaz', async () => {
     // Set some sensitive transient state
     useVaultStore.setState({
       selectedItemId: 'item-1',
@@ -117,11 +139,19 @@ describe('Gestor de Estado de Bóveda (Zustand Store)', () => {
     expect(state.searchQuery).toBe('');
     expect(state.activeFolderId).toBeNull();
     expect(state.filterOnlyFavorites).toBe(false);
+    expect(state.items).toEqual([]);
+    expect(vaultApi.lock).toHaveBeenCalled();
 
-    // Unlock
-    const success = useVaultStore.getState().unlockVault('master-password-1234');
+    // Wrong password keeps it locked
+    expect(await useVaultStore.getState().unlockVault('incorrecta')).toBe(false);
+    expect(useVaultStore.getState().vaultStatus).toBe('locked');
+
+    // Unlock decrypts records back into memory
+    const success = await useVaultStore.getState().unlockVault('master-password-1234');
     expect(success).toBe(true);
     expect(useVaultStore.getState().vaultStatus).toBe('unlocked');
     expect(useVaultStore.getState().activeView).toBe('dashboard');
+    expect(useVaultStore.getState().items).toHaveLength(1);
+    expect(useVaultStore.getState().settings.autoLockMinutes).toBe(5);
   });
 });

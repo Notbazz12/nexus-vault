@@ -19,7 +19,28 @@ import { SettingsView } from './views/SettingsView';
 import { BackupsView } from './views/BackupsView';
 
 export const App: React.FC = () => {
-  const { vaultStatus, activeView, setView, lockVault, setEditingItem } = useVaultStore();
+  const { vaultStatus, activeView, setView, lockVault, setEditingItem, bootstrap, settings } = useVaultStore();
+
+  useEffect(() => {
+    bootstrap();
+  }, [bootstrap]);
+
+  // Auto-lock after settings.autoLockMinutes of inactivity (0 = never)
+  useEffect(() => {
+    if (vaultStatus !== 'unlocked' || settings.autoLockMinutes <= 0) return;
+    let timer: ReturnType<typeof setTimeout>;
+    const reset = () => {
+      clearTimeout(timer);
+      timer = setTimeout(lockVault, settings.autoLockMinutes * 60_000);
+    };
+    const events = ['mousemove', 'mousedown', 'keydown', 'wheel'] as const;
+    events.forEach((ev) => window.addEventListener(ev, reset));
+    reset();
+    return () => {
+      clearTimeout(timer);
+      events.forEach((ev) => window.removeEventListener(ev, reset));
+    };
+  }, [vaultStatus, settings.autoLockMinutes, lockVault]);
 
   // Global Keyboard Shortcuts
   useEffect(() => {
@@ -63,12 +84,12 @@ export const App: React.FC = () => {
   }, [lockVault, setView, setEditingItem]);
 
   // Route to onboarding or lock views when appropriate
-  if (activeView === 'welcome' || vaultStatus === 'uninitialized') {
-    return <WelcomeView />;
+  if (activeView === 'create-master' && vaultStatus === 'uninitialized') {
+    return <CreateMasterView />;
   }
 
-  if (activeView === 'create-master') {
-    return <CreateMasterView />;
+  if (activeView === 'welcome' || vaultStatus === 'uninitialized') {
+    return <WelcomeView />;
   }
 
   if (activeView === 'unlock' || vaultStatus === 'locked') {

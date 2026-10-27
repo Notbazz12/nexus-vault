@@ -11,18 +11,23 @@ export const UnlockView: React.FC = () => {
   const [isLockedOut, setIsLockedOut] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleUnlock = (e: React.FormEvent) => {
+  const [busy, setBusy] = useState(false);
+
+  const handleUnlock = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isLockedOut) return;
+    if (isLockedOut || busy) return;
 
     if (!password) {
       setError('Por favor introduce la contraseña maestra.');
       return;
     }
 
-    // In Phase 01 mock, valid passwords allow unlock.
-    const success = unlockVault(password);
-    if (!success) {
+    setBusy(true);
+    const success = await unlockVault(password);
+    setBusy(false);
+    if (success) {
+      setPassword('');
+    } else {
       const newAttempts = attempts + 1;
       setAttempts(newAttempts);
       if (newAttempts >= 3) {
@@ -95,7 +100,7 @@ export const UnlockView: React.FC = () => {
 
           <button
             type="submit"
-            disabled={isLockedOut || password.length === 0}
+            disabled={isLockedOut || busy || password.length === 0}
             className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-cyan-accent to-electric-blue text-nexus-950 font-bold text-xs hover:brightness-110 active:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-cyber-cyan flex items-center justify-center gap-2"
           >
             <KeyRound className="w-4 h-4" />
