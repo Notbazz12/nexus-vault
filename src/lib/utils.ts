@@ -152,6 +152,16 @@ export function generatePassphrase(
   return chosenWords.join(separator);
 }
 
+export function isSafeUrl(url: string): boolean {
+  if (!url || typeof url !== 'string') return false;
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 export function formatDate(isoDate: string): string {
   try {
     const date = new Date(isoDate);

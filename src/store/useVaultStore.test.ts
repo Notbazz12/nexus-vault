@@ -93,11 +93,30 @@ describe('Gestor de Estado de Bóveda (Zustand Store)', () => {
     expect(found).toBeUndefined();
   });
 
-  it('Gestiona transiciones seguras de bloqueo y desbloqueo de la bóveda', () => {
-    // Lock
+  it('Gestiona transiciones seguras de bloqueo y desbloqueo de la bóveda purgando secretos de la interfaz', () => {
+    // Set some sensitive transient state
+    useVaultStore.setState({
+      selectedItemId: 'item-1',
+      editingItem: INITIAL_ITEMS[0],
+      clipboardNotification: 'Contraseña copiada',
+      searchQuery: 'secret search',
+      activeFolderId: 'f-dev',
+      filterOnlyFavorites: true,
+    });
+
+    // Lock vault
     useVaultStore.getState().lockVault();
-    expect(useVaultStore.getState().vaultStatus).toBe('locked');
-    expect(useVaultStore.getState().activeView).toBe('unlock');
+
+    // Verify all sensitive transient state is wiped
+    const state = useVaultStore.getState();
+    expect(state.vaultStatus).toBe('locked');
+    expect(state.activeView).toBe('unlock');
+    expect(state.selectedItemId).toBeNull();
+    expect(state.editingItem).toBeNull();
+    expect(state.clipboardNotification).toBeNull();
+    expect(state.searchQuery).toBe('');
+    expect(state.activeFolderId).toBeNull();
+    expect(state.filterOnlyFavorites).toBe(false);
 
     // Unlock
     const success = useVaultStore.getState().unlockVault('master-password-1234');

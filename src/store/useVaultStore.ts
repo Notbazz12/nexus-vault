@@ -161,7 +161,17 @@ export const useVaultStore = create<VaultStoreState>((set, get) => ({
     };
   }),
 
-  lockVault: () => set({ vaultStatus: 'locked', activeView: 'unlock' }),
+  lockVault: () => set({
+    vaultStatus: 'locked',
+    activeView: 'unlock',
+    selectedItemId: null,
+    editingItem: null,
+    clipboardNotification: null,
+    searchQuery: '',
+    filterOnlyFavorites: false,
+    filterOnlyTrash: false,
+    activeFolderId: null,
+  }),
 
   unlockVault: (masterPassword) => {
     // Phase 01: mock verification (accepts non-empty password)

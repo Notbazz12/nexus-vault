@@ -22,7 +22,7 @@ import {
   Check
 } from 'lucide-react';
 import { useVaultStore } from '../store/useVaultStore';
-import { calculateEntropy, formatDate } from '../lib/utils';
+import { calculateEntropy, formatDate, isSafeUrl } from '../lib/utils';
 import { AnyVaultItem, LoginItem, CardItem, NoteItem, IdentityItem } from '../types';
 
 interface ItemDetailPanelProps {
@@ -57,6 +57,13 @@ export const ItemDetailPanel: React.FC<ItemDetailPanelProps> = ({ item }) => {
   }
 
   const folder = folders.find((f) => f.id === item.folderId);
+
+  const handleOpenExternal = (e: React.MouseEvent, url: string) => {
+    if (!isSafeUrl(url)) {
+      e.preventDefault();
+      alert('Bloqueo de Seguridad: Solo se permite la apertura de enlaces con protocolo http:// o https://');
+    }
+  };
 
   const handleCopy = async (text: string, fieldName: string) => {
     await copySecureValue(text, fieldName);
@@ -158,6 +165,7 @@ export const ItemDetailPanel: React.FC<ItemDetailPanelProps> = ({ item }) => {
                   href={login.url}
                   target="_blank"
                   rel="noreferrer"
+                  onClick={(e) => handleOpenExternal(e, login.url)}
                   className="text-xs text-cyan-accent hover:underline truncate block"
                 >
                   {login.url}
@@ -176,6 +184,7 @@ export const ItemDetailPanel: React.FC<ItemDetailPanelProps> = ({ item }) => {
                 href={login.url}
                 target="_blank"
                 rel="noreferrer"
+                onClick={(e) => handleOpenExternal(e, login.url)}
                 className="p-1.5 rounded-lg bg-nexus-750/60 hover:bg-nexus-700 text-nexus-300 hover:text-nexus-100 transition-all"
                 title="Abrir en navegador"
               >

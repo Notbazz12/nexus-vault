@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculateEntropy, generatePassword, generatePassphrase } from './utils';
+import { calculateEntropy, generatePassword, generatePassphrase, isSafeUrl } from './utils';
 
 describe('Criptografía y Generador en Frontend (Utils)', () => {
   it('Calcula correctamente la entropía para contraseñas de diferentes complejidades', () => {
@@ -86,5 +86,19 @@ describe('Criptografía y Generador en Frontend (Utils)', () => {
       expect(p.length).toBeGreaterThan(2);
       expect(p[0]).toBe(p[0].toUpperCase());
     });
+  });
+
+  it('Valida estrictamente la seguridad de URLs externas rechazando esquemas peligrosos', () => {
+    // Valid schemes
+    expect(isSafeUrl('https://github.com/login')).toBe(true);
+    expect(isSafeUrl('http://192.168.1.1:8080')).toBe(true);
+
+    // Dangerous schemes
+    expect(isSafeUrl('file:///C:/Windows/System32/cmd.exe')).toBe(false);
+    expect(isSafeUrl('javascript:alert(1)')).toBe(false);
+    expect(isSafeUrl('data:text/html,<script>alert(1)</script>')).toBe(false);
+    expect(isSafeUrl('\\\\attacker-smb\\share')).toBe(false);
+    expect(isSafeUrl('')).toBe(false);
+    expect(isSafeUrl('not a url')).toBe(false);
   });
 });

@@ -18,16 +18,24 @@ El presente análisis evalúa los vectores de ataque y defensas de NEXUS VAULT u
 
 ---
 
-## 3. Matriz STRIDE
+## 3. Matriz de Vectores de Ataque y Estado de Mitigación
 
-| Categoría | Amenaza Específica | Mitigación en NEXUS VAULT | Estado |
+A continuación se categorizan explícitamente las amenazas evaluadas, clasificándolas con rigor técnico entre **Mitigado**, **Parcialmente Mitigado** y **No Mitigado**.
+
+| Vector de Ataque | Descripción y Superficie | Estrategia de Mitigación en NEXUS VAULT | Estado de Mitigación |
 | :--- | :--- | :--- | :---: |
-| **S - Spoofing** | Suplantación del usuario para desbloquear la bóveda. | Autenticación obligatoria con contraseña maestra de alta entropía. Derivación KDF costosa (Argon2id) que hace inviable el ataque de fuerza bruta fuera de línea. | Implementado |
-| **T - Tampering** | Modificación maliciosa o corrupción de registros en la base de datos SQLite para forzar fallos o inyectar payloads. | Cifrado autenticado con **XChaCha20-Poly1305**. Cualquier alteración de un bit invalida el tag Poly1305, abortando el descifrado antes de exponer datos al deserializador. | Implementado |
-| **R - Repudiation** | Modificación no registrada de configuración de seguridad o eliminación accidental. | Registro local transaccional no sensible de eventos de bóveda (creación, cambio de contraseña maestra, respaldos) con marcas de tiempo en SQLite. | Implementado |
-| **I - Information Disclosure** | Extracción de contraseñas desde la base de datos en reposo, volcados de memoria tras el bloqueo, o portapapeles. | 1. Cifrado integral de campos (incluidos metadatos, nombres y URLs).<br>2. Borrado determinista de memoria con `Zeroize`.<br>3. Limpieza automática del portapapeles con verificación de contenido previo. | Implementado |
-| **D - Denial of Service** | Intentos masivos repetidos de desbloqueo para saturar CPU o corromper transacciones SQLite. | 1. Limitador de tasa y retardo incremental tras fallos consecutivos.<br>2. Transacciones SQLite con modo WAL (Write-Ahead Logging) y atomicidad garantizada. | Implementado |
-| **E - Elevation of Privilege** | Explotación de la interfaz Webview para ejecutar código arbitrario en el sistema operativo. | 1. Política de permisos mínimos en Tauri 2.<br>2. Desactivación de ejecución remota de scripts (`csp` estricto).<br>3. IPC cerrado: solo comandos Tauri explícitamente registrados son invocables. | Implementado |
+| **Robo del archivo `vault.db`** | Copia del archivo SQLite desde disco apagado o respaldo sustraído. | Cifrado autenticado XChaCha20-Poly1305 para todos los payloads. Cero texto plano en reposo. Derivación KEK costosa con Argon2id. | **MITIGADO** |
+| **Manipulación de Registros Cifrados** | Alteración o corrupción deliberada de bits en la base de datos local para inducir fallos. | El código de autenticación Poly1305 valida la integridad criptográfica de cada bit antes de cualquier deserialización. Modificaciones abortan el descifrado. | **MITIGADO** |
+| **Intercambio entre Registros (*Ciphertext Swapping*)** | Un atacante intercambia los blobs cifrados de la fila A a la fila B o inyecta un ítem en el sobre de la DEK. | **Datos Autenticados Adicionales (AAD)** obligatorios: cada payload autentica `version \|\| domain_separator \|\| context_id (UUID)`. El descifrado falla si el contexto no coincide. | **MITIGADO** |
+| **Ataques de Fuerza Bruta Fuera de Línea** | Un adversario utiliza clústeres de GPU/ASIC para adivinar la contraseña maestra a partir de `vault_metadata`. | KDF **Argon2id** intensivo en memoria (`m=64 MiB, t=3, p=4`). Hace inviable el cómputo paralelo masivo en GPUs y protege contra ataques de canal lateral de caché. | **MITIGADO** |
+| **Ataques a través del WebView (XSS / Inyección)** | Explotación de vulnerabilidades en la interfaz gráfica para ejecutar scripts maliciosos. | Política de Seguridad de Contenido (CSP) ultra-estricta sin scripts remotos ni `unsafe-eval`. Desactivación de ejecución remota y minimización de capacidades en Tauri 2. | **MITIGADO** |
+| **Inyección de Protocolos vía Enlaces Externos** | Intento de abrir enlaces con esquemas maliciosos (`file:`, `javascript:`, rutas UNC) para ejecución remota de comandos. | Sanitización y validación previa obligatoria: únicamente esquemas `http://` y `https://` son autorizados para delegación al navegador del sistema operativo. | **MITIGADO** |
+| **Ataque de Reversión (*Rollback / Replay*)** | Reemplazo de la base de datos actual por un respaldo legítimo antiguo para revertir cambios de contraseñas. | Se incluye un contador monotónico de revisiones y timestamps auditables dentro del payload cifrado de metadata. El usuario es notificado de discrepancias cronológicas. | **PARCIALMENTE MITIGADO** |
+| **Acceso de Otros Usuarios en la Misma Máquina** | Cuentas de usuario locales estándar intentando leer los archivos de la aplicación. | Permisos de archivo restrictivos a nivel de sistema operativo: ACLs `icacls` en Windows exclusivas para el SID del usuario actual; `chmod 0600` en Linux. | **MITIGADO** (frente a usuarios estándar) |
+| **Persistencia de Secretos en Memoria Residual** | Retención de fragmentos de contraseñas en memoria volátil tras el bloqueo. | En Rust: uso de `Zeroize`/`ZeroizeOnDrop` y `Zeroizing<T>`. En frontend: purga inmediata de estado Zustand al bloquear. Sin embargo, V8 no garantiza la recolección determinista de strings inmutables en heap. | **PARCIALMENTE MITIGADO** |
+| **Extensiones Maliciosas de Navegador** | Extensiones de terceros en el navegador interceptando credenciales al autocompletar. | Native Messaging autenticado y con autorización explícita del usuario para cada dominio en fases futuras (Fase 09). Actualmente fuera del alcance local. | **PARCIALMENTE MITIGADO** |
+| **Malware en Kernel / Rootkit / Keylogger** | Software malicioso con privilegios administrativos capturando pulsaciones del teclado o volcando memoria física. | **Límite honesto de seguridad**: Si el sistema operativo anfitrión está comprometido a nivel de ring 0/administrador, ninguna aplicación de espacio de usuario puede garantizar confidencialidad. | **NO MITIGADO** |
+| **Ataques de Arranque en Frío (*Cold Boot Attacks*)** | Extracción física de la memoria RAM con el equipo encendido y la bóveda activamente desbloqueada. | Durante el tiempo en que la bóveda está desbloqueada, la DEK debe residir en RAM para operar. Se mitiga reduciendo el tiempo de permanencia con auto-bloqueo estricto por inactividad. | **PARCIALMENTE MITIGADO** |
 
 ---
 

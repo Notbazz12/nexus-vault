@@ -8,8 +8,9 @@ Este documento establece la hoja de ruta técnica estructurada por fases secuenc
 
 | Fase | Título | Entregables Principales | Estado |
 | :---: | :--- | :--- | :---: |
-| **00** | **Investigación y Arquitectura** | Inspección de herramientas (Node v24, pnpm, Rust 1.99 GNU, Git), repositorio, documentos base (`README`, `ARCHITECTURE`, `SECURITY`, `THREAT_MODEL`, `DEVELOPMENT_PLAN`, `TEST_REPORT`, `CHANGELOG`). | 🟢 **EN PROGRESO / COMPLETANDO** |
-| **01** | **Sistema de Diseño e Interfaz** | Estructura frontend (React + TS + Tailwind + Lucide + Zustand), 13 vistas completas con diseño Cyber/Fintech, datos ficticios enriquecidos, pruebas con Vitest. | 🟡 **SIGUIENTE INMEDIATA** |
+| **00** | **Investigación y Arquitectura** | Inspección de herramientas (Node v24, pnpm, Rust 1.99 GNU, Git), repositorio, documentos base (`README`, `ARCHITECTURE`, `SECURITY`, `THREAT_MODEL`, `DEVELOPMENT_PLAN`, `TEST_REPORT`, `CHANGELOG`). | 🟢 **COMPLETADO** |
+| **00.5** | **Auditoría Arquitectónica y Endurecimiento de Seguridad** | Auditoría profunda de diseño, especificación formal de AAD y formato versionado (`CRYPTO_FORMAT_SPEC.md`), modelo de seguridad IPC y memoria (`IPC_SECURITY.md`), informe de auditoría (`SECURITY_AUDIT_00_5.md`), mitigación de fugas de metadatos SQLite, corrección matemática de nonces y pruebas de seguridad. | 🟢 **COMPLETADO** |
+| **01** | **Sistema de Diseño e Interfaz** | Estructura frontend (React + TS + Tailwind + Lucide + Zustand), 13 vistas completas con diseño Cyber/Fintech, datos ficticios enriquecidos, pruebas con Vitest. | 🟢 **COMPLETADO** |
 | **02** | **Motor Criptográfico en Rust** | Módulo de derivación Argon2id, cifrado XChaCha20-Poly1305 AEAD, envelope encryption (KEK/DEK), pruebas con vectores criptográficos oficiales en Cargo. | ⚪ Planificado |
 | **03** | **Bóveda Funcional & Persistencia** | Base de datos SQLite local, almacenamiento de payloads cifrados, CRUD completo de credenciales, carpetas, favoritos, papelera con restauración. | ⚪ Planificado |
 | **04** | **Generador & Centro de Seguridad** | Generador CSPRNG de contraseñas y contraseñas de palabras (passphrases), estimación de entropía y auditoría en memoria de salud de contraseñas. | ⚪ Planificado |

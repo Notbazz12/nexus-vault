@@ -21,17 +21,18 @@ Todas las primitivas criptográficas implementadas en NEXUS VAULT provienen de b
 
 ---
 
-## 3. Manejo de Secretos en Memoria
+## 3. Manejo de Secretos en Memoria y Límites Reales
 
-1. **Ciclo de Vida Mínimo**:
-   - La contraseña maestra del usuario existe en memoria únicamente durante la derivación de la KEK (fracciones de segundo) y es inmediatamente destruida.
+1. **Ciclo de Vida Mínimo y Control en Rust**:
+   - La contraseña maestra del usuario existe en memoria únicamente durante la derivación de la KEK (fracciones de segundo) y es inmediatamente destruida mediante `Zeroize`.
    - La clave de cifrado de datos (DEK) se almacena en memoria envuelta en una estructura `SessionGuard` que implementa `Drop` con `zeroize()`.
-2. **Aislamiento del Frontend**:
-   - El estado de la interfaz gráfica (Zustand) no almacena la lista completa de contraseñas en texto plano de forma persistente.
-   - Los valores de contraseña solo se descifran bajo demanda del usuario o para vistas activas en pantalla.
-3. **Prohibición de Registro en Logs**:
-   - Se prohíbe el uso de `println!`, `dbg!`, `tracing` o `console.log` con estructuras que contengan campos clasificados como sensibles (contraseñas, notas privadas, DEK, KEK, nonces intermedios).
-   - Se implementan redactores automáticos en las traits `std::fmt::Debug` para todos los modelos de dominio.
+   - Todos los tipos sensibles implementan redactores automáticos en `std::fmt::Debug`, asegurando que `println!`, `dbg!` o trazas de error emitan `[REDACTED_SECRET]` en lugar de material confidencial.
+2. **Frontera de Memoria con el Frontend (V8 Engine)**:
+   - En el frontend basado en WebView, las cadenas de texto (`string`) en JavaScript son inmutables y están sujetas a la recolección de basura asíncrona de V8. No existe una instrucción nativa de JavaScript que garantice la sobreescritura determinista con ceros en RAM.
+   - **Declaración Honesta**: NEXUS VAULT reconoce que `Zeroize` opera en la memoria administrada por Rust y no puede garantizar el borrado inmediato de cadenas transitorias en el heap de JavaScript.
+   - **Mitigación**: Los datos descifrados se solicitan bajo demanda y se purgan exhaustivamente del estado de Zustand al pulsar bloquear (`Ctrl+L`) o por inactividad.
+3. **Cero Persistencia No Cifrada**:
+   - Queda estrictamente prohibido persistir secretos o tokens en `localStorage`, `sessionStorage`, `IndexedDB`, cookies o registros de log.
 
 ---
 

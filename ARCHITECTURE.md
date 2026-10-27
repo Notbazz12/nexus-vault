@@ -92,60 +92,83 @@ sequenceDiagram
 
 ---
 
-## 3. Formato del Payload Cifrado (Versionado)
+## 3. Formato del Payload Cifrado y Datos Autenticados Adicionales (AAD)
 
-Cada ítem almacenado (contraseña, nota, tarjeta, información personal) se serializa a nivel de campo en un objeto binario con autenticación asociada:
+Cada ítem almacenado (contraseña, nota, tarjeta, información personal) o sobre de clave se serializa en un objeto binario autenticado de forma estricta (especificación normativa en `CRYPTO_FORMAT_SPEC.md`):
 
 ```text
 +-----------------------+-----------------------+----------------------------------+
 | Version (1 byte)      | Nonce (24 bytes)      | Ciphertext + Poly1305 Tag (16B)  |
-| 0x01                  | CSPRNG XChaCha Nonce  | Payload JSON serializado cifrado |
+| 0x01                  | CSPRNG XNonce (192b)  | Payload cifrado autenticado      |
 +-----------------------+-----------------------+----------------------------------+
 ```
 
-### Ventajas de este Formato:
-- **Resistencia a Colisiones**: Con un nonce de 192 bits (24 bytes), se pueden generar $2^{96}$ nonces aleatorios con probabilidad de colisión prácticamente nula, eliminando la necesidad de contadores sincronizados en disco.
-- **Autenticación Fuerte**: Poly1305 rechaza cualquier modificación o corrupción de un solo bit antes de que el texto plano sea expuesto a la capa de deserialización.
-- **Evolución y Migración**: El prefijo de versión (`0x01`) permite que futuras versiones del software introduzcan algoritmos post-cuánticos o esquemas alternativos sin romper la compatibilidad con bóvedas existentes.
+### 3.1. Autenticación de Contexto e Identidad (AAD Obligatorio)
+Para neutralizar ataques de **sustitución de ciphertext (*ciphertext swapping*)** entre filas de la base de datos o confusión de tipos:
+```text
+AAD = Version (0x01) || DomainSeparator (1B) || ContextLen (2B BE) || ContextID (NB)
+```
+- **Separadores de Dominio**:
+  - `0x01` (`DekEnvelope`): Cifrado de DEK con KEK (ContextID: `b"ROOT_DEK"`).
+  - `0x02` (`VaultItem`): Cifrado de registro individual (ContextID: UUID v4 del ítem).
+  - `0x03` (`Folder`): Cifrado de metadatos de carpeta (ContextID: UUID v4 de la carpeta).
+  - `0x04` (`BackupExport`): Cifrado de archivo de exportación de respaldo.
+
+### 3.2. Evaluación Rigurosa de Probabilidad de Colisión de Nonces (192 bits)
+Bajo la aproximación del problema del cumpleaños, para un espacio de $n = 192$ bits y $q$ generaciones:
+$$P \approx \frac{q^2}{2^{n+1}} = \frac{q^2}{2^{193}}$$
+- Para $q = 2^{32} \approx 4.29 \times 10^9$ registros cifrados: $P \approx 2^{-129} \approx 1.47 \times 10^{-39}$.
+- Para $q = 2^{64}$ operaciones: $P \approx 2^{-65} \approx 2.71 \times 10^{-20}$.
+- El punto de colisión del 50% se sitúa en $q \approx 2^{96}$ operaciones ($\sqrt{2^{192}}$), por lo que para el ciclo de vida de una bóveda local ($q < 10^5$), la probabilidad de colisión es estrictamente nula en la práctica, superando ampliamente a esquemas con nonces de 96 bits como AES-GCM.
 
 ---
 
-## 4. Esquema de Persistencia SQLite
+## 4. Esquema de Persistencia SQLite y Mitigación de Fuga de Metadatos
 
-La base de datos SQLite se crea en la ruta de datos protegida de la aplicación:
-- **Windows**: `%LOCALAPPDATA%\NexusVault\vault.db`
-- **Linux**: `~/.local/share/nexusvault/vault.db`
+La base de datos SQLite se almacena en el directorio protegido de la aplicación con permisos restringidos de sistema operativo:
+- **Windows**: `%LOCALAPPDATA%\NexusVault\vault.db` (Protegido vía ACLs `icacls` exclusivamente para el SID del usuario actual).
+- **Linux**: `~/.local/share/nexusvault/vault.db` (Permisos `chmod 0600`).
 
-### Tablas Principales:
+### 4.1. Reducción Estricta de Exposición de Metadatos:
+A diferencia de esquemas convencionales que dejan carpetas, favoritos o estados de papelera en columnas legibles, NEXUS VAULT almacena todos los atributos taxonómicos **dentro del payload cifrado con la DEK**. Un adversario que examine `vault.db` solo observa UUIDs opacos y marcas de tiempo, sin poder deducir qué elementos son notas, contraseñas o tarjetas.
+
+### 4.2. Tablas de Persistencia:
 
 1. `vault_metadata`:
    - `id` (INTEGER PRIMARY KEY)
-   - `format_version` (INTEGER)
-   - `kdf_salt` (BLOB, 32 bytes)
-   - `kdf_memory_kib` (INTEGER)
-   - `kdf_iterations` (INTEGER)
-   - `kdf_parallelism` (INTEGER)
-   - `encrypted_dek` (BLOB)
-   - `dek_nonce` (BLOB, 24 bytes)
+   - `format_version` (INTEGER - 0x01)
+   - `kdf_salt` (BLOB, 32 bytes CSPRNG)
+   - `kdf_memory_kib` (INTEGER - Validado entre 16 MiB y 1 GiB)
+   - `kdf_iterations` (INTEGER - Validado entre 1 y 64)
+   - `kdf_parallelism` (INTEGER - Validado entre 1 y 16)
+   - `encrypted_dek` (BLOB - Sobre cifrado con KEK y AAD `DekEnvelope`)
    - `created_at` (TEXT ISO8601)
    - `updated_at` (TEXT ISO8601)
 
 2. `vault_items`:
-   - `id` (TEXT UUID PRIMARY KEY)
-   - `item_type` (TEXT - 'login', 'note', 'card', 'identity')
-   - `folder_id` (TEXT UUID nullable)
-   - `is_favorite` (BOOLEAN)
-   - `is_trashed` (BOOLEAN)
-   - `encrypted_data` (BLOB - Payload cifrado con DEK)
+   - `id` (TEXT UUID v4 PRIMARY KEY)
+   - `encrypted_data` (BLOB - Payload versionado 0x01 cifrado con DEK y AAD `VaultItem || id`)
    - `created_at` (TEXT ISO8601)
    - `updated_at` (TEXT ISO8601)
 
 3. `folders`:
-   - `id` (TEXT UUID PRIMARY KEY)
-   - `encrypted_name` (BLOB - Nombre de la carpeta cifrado con DEK)
+   - `id` (TEXT UUID v4 PRIMARY KEY)
+   - `encrypted_data` (BLOB - Nombre de carpeta cifrado con DEK y AAD `Folder || id`)
    - `created_at` (TEXT ISO8601)
 
-> **Nota Crítica**: Los nombres de las carpetas, títulos de servicios y metadatos de usuario están completamente cifrados dentro del payload. La base de datos en reposo únicamente expone UUIDs opacos y tipos genéricos de ítem para indexación rápida.
+### 4.3. Modo WAL, Archivos Auxiliares y Respaldos Consistentes:
+- **Modo WAL (Write-Ahead Logging)**: Configurado obligatoriamente (`PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL;`).
+- **Manejo de `-wal` y `-shm`**: El borrado o respaldo de la bóveda considera atómicamente estos archivos.
+- **Respaldos Consistentes**: Para prevenir corrupción al respaldar bases de datos abiertas, los respaldos se generan mediante la API de copia en línea (`VACUUM INTO 'ruta/backup.db'`), congelando una instantánea transaccional consistente sin bloquear lectores.
+
+### 4.4. Protocolo Transaccional para Cambio de Contraseña Maestra:
+1. Validar la contraseña actual descifrando la DEK en memoria RAM.
+2. Derivar `new_kek` con nueva sal aleatoria de 32 bytes y nueva contraseña maestra.
+3. Cifrar la DEK existente bajo `new_kek` con nuevo nonce y AAD.
+4. Abrir transacción exclusiva SQLite (`BEGIN EXCLUSIVE TRANSACTION;`).
+5. Actualizar `vault_metadata` de forma atómica.
+6. Ejecutar `COMMIT;`. Ante cualquier fallo o corte de energía antes del commit, SQLite revierte la operación y la contraseña anterior permanece válida.
+7. Aplicar `zeroize()` sobre contraseñas y KEKs.
 
 ---
 

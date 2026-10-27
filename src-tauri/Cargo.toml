@@ -1,0 +1,20 @@
+[package]
+name = "nexus-vault-core"
+version = "0.1.0"
+edition = "2021"
+authors = ["Nexus Vault Engineering <engineering@nexusvault.local>"]
+description = "Core security, cryptographic engine, and domain services for Nexus Vault"
+
+[dependencies]
+argon2 = { version = "0.5.3", features = ["std"] }
+chacha20poly1305 = { version = "0.10.1", features = ["alloc"] }
+zeroize = { version = "1.8.1", features = ["zeroize_derive"] }
+rand_core = { version = "0.6.4", features = ["getrandom"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.10", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "1.0"
+
+[dev-dependencies]
+hex = "0.4"
