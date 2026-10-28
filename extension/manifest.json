@@ -1,14 +1,38 @@
 {
   "manifest_version": 3,
   "name": "Nexus Vault",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Rellena tus contraseñas de Nexus Vault en Edge.",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAw/aNSpzTMEOsc2testmgetuaBcyA0tlkhfS/knaoYOGqKDSkbV0u3Xl34qyht3yfRmeyjQiocQ3EXz3r5gdLZDstXr6q7uGSiaTeQyCfo3LSiD2Hijs1TSIVVI9UpC2y0CILX1jx0xX0n2bz7W7IHw5kGJaMeDJhviImSjkriw4evyuwyRvI1UB07azra4Myjxke6yKpzPWkDpfxCbmsb7jWvB65fN8OwoTgJmIFHUDeQM4JnHqQO3hjYbzPqGQoUxqUtA3wMkPNwx0RLp85/WaYM9HReyP0LyMRqQqg2JuRCW6Ve1zID03/wBV9aEHEByyIW7m36mIhBqBJwBRvuwIDAQAB",
-  "permissions": ["nativeMessaging", "activeTab", "scripting"],
-  "background": { "service_worker": "background.js" },
+  "permissions": [
+    "nativeMessaging",
+    "activeTab",
+    "scripting"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
     "default_popup": "popup.html",
-    "default_icon": { "32": "icons/32.png", "128": "icons/128.png" }
+    "default_icon": {
+      "32": "icons/32.png",
+      "128": "icons/128.png"
+    }
   },
-  "icons": { "32": "icons/32.png", "128": "icons/128.png" }
+  "icons": {
+    "32": "icons/32.png",
+    "128": "icons/128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
 }

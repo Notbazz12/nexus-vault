@@ -14,4 +14,7 @@ El ID de la extensión es fijo (`jkgldpjmhklndjnniiflbbbecnbilkdl`) gracias a la
 `key` del manifest. Si se publica en la tienda de Edge, añade el ID que asigne la
 tienda a `allowed_origins` en `install-host.ps1`.
 
+Al entrar en un campo de usuario o contraseña aparece un menú con tus logins de ese
+sitio. Si la bóveda está bloqueada, el menú te ofrece desbloquearla.
+
 La bóveda se bloquea sola a los 5 minutos sin uso, o al cerrar Edge.
