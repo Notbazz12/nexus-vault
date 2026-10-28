@@ -59,3 +59,23 @@ fn unlock_then_only_matching_live_logins_returned() {
     assert_eq!(call(&mut v, json!({"cmd": "logins", "url": "https://github.com"}))["error"], "La bóveda está bloqueada");
     assert_eq!(call(&mut v, json!({"cmd": "borrar"}))["ok"], false);
 }
+
+#[test]
+fn save_creates_then_updates_and_needs_unlock() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut v = Vault::open_with_kdf(&dir.path().join("vault.db"), FAST).unwrap();
+    v.create(&MasterPassword::new(b"correcta".to_vec())).unwrap();
+    let save = |v: &mut Vault, pw: &str| handle(v, &json!({"cmd": "save", "url": "https://www.roblox.com/login", "username": "ana", "password": pw}));
+
+    assert_eq!(save(&mut v, "uno")["saved"], "created");
+    assert_eq!(save(&mut v, "uno")["saved"], "unchanged");
+    assert_eq!(save(&mut v, "dos")["saved"], "updated");
+    let logins = handle(&mut v, &json!({"cmd": "logins", "url": "https://roblox.com/home"}));
+    assert_eq!(logins["logins"].as_array().unwrap().len(), 1);
+    assert_eq!(logins["logins"][0]["password"], "dos");
+    assert_eq!(logins["logins"][0]["title"], "roblox.com");
+
+    assert_eq!(handle(&mut v, &json!({"cmd": "save", "url": "https://roblox.com", "password": ""}))["ok"], false);
+    v.lock();
+    assert_eq!(save(&mut v, "tres")["error"], "La bóveda está bloqueada");
+}

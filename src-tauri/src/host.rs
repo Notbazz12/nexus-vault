@@ -69,23 +69,60 @@ fn vault_err(e: CryptoError) -> Value {
     }
 }
 
-fn logins_for(vault: &Vault, page_url: &str) -> Result<Vec<Value>, CryptoError> {
+fn str_field(item: &Value, k: &str) -> String {
+    item.get(k).and_then(Value::as_str).unwrap_or("").to_string()
+}
+
+/// Non-trashed login items saved for the site of `page_url`, as (id, parsed JSON).
+fn site_logins(vault: &Vault, page_url: &str) -> Result<Vec<(String, Value)>, CryptoError> {
     let mut out = Vec::new();
     for rec in vault.list()?.into_iter().filter(|r| r.kind == "item") {
         let Ok(item) = serde_json::from_str::<Value>(&rec.json) else { continue };
-        let field = |k: &str| item.get(k).and_then(Value::as_str).unwrap_or("").to_string();
         let trashed = item.get("isTrashed").and_then(Value::as_bool).unwrap_or(false);
-        if field("type") != "login" || trashed || !same_site(page_url, &field("url")) {
-            continue;
+        if str_field(&item, "type") == "login" && !trashed && same_site(page_url, &str_field(&item, "url")) {
+            out.push((rec.id, item));
         }
-        out.push(json!({
-            "id": rec.id,
-            "title": field("title"),
-            "username": if field("username").is_empty() { field("email") } else { field("username") },
-            "password": field("password"),
-        }));
     }
     Ok(out)
+}
+
+fn login_user(item: &Value) -> String {
+    let user = str_field(item, "username");
+    if user.is_empty() { str_field(item, "email") } else { user }
+}
+
+fn logins_for(vault: &Vault, page_url: &str) -> Result<Vec<Value>, CryptoError> {
+    Ok(site_logins(vault, page_url)?
+        .into_iter()
+        .map(|(id, item)| {
+            json!({ "id": id, "title": str_field(&item, "title"), "username": login_user(&item), "password": str_field(&item, "password") })
+        })
+        .collect())
+}
+
+/// Updates the password of the same site+user if it exists, otherwise adds a new login
+/// shaped like the app editor creates them (src/views/EditItemView.tsx).
+fn save_login(vault: &Vault, page_url: &str, username: &str, password: &str) -> Result<Value, CryptoError> {
+    let Some(site) = host_of(page_url) else { return Ok(err("URL no válida")) };
+    let now = chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+    if let Some((id, mut item)) = site_logins(vault, page_url)?.into_iter().find(|(_, i)| login_user(i) == username) {
+        if str_field(&item, "password") == password {
+            return Ok(json!({ "ok": true, "saved": "unchanged" }));
+        }
+        item["password"] = json!(password);
+        item["updatedAt"] = json!(now);
+        vault.put(&id, "item", &item.to_string())?;
+        return Ok(json!({ "ok": true, "saved": "updated" }));
+    }
+    let id = format!("item-{}", uuid::Uuid::new_v4().simple());
+    let item = json!({
+        "id": id, "type": "login", "title": site, "username": username, "email": "",
+        "password": password, "url": format!("https://{site}"), "notes": "", "category": "General",
+        "folderId": null, "isFavorite": false, "isTrashed": false, "tags": [],
+        "createdAt": now, "updatedAt": now, "customFields": [],
+    });
+    vault.put(&id, "item", &item.to_string())?;
+    Ok(json!({ "ok": true, "saved": "created" }))
 }
 
 pub fn handle(vault: &mut Vault, req: &Value) -> Value {
@@ -113,6 +150,12 @@ pub fn handle(vault: &mut Vault, req: &Value) -> Value {
                 Err(e) => vault_err(e),
             },
             None => err("Falta la URL"),
+        },
+        Some("save") => match (arg("url"), arg("password")) {
+            (Some(url), Some(pw)) if !pw.is_empty() => {
+                save_login(vault, url, arg("username").unwrap_or(""), pw).unwrap_or_else(vault_err)
+            }
+            _ => err("Faltan la URL o la contraseña"),
         },
         _ => err("Comando desconocido"),
     }
