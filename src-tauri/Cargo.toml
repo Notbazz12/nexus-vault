@@ -7,7 +7,6 @@ description = "Core security, cryptographic engine, and domain services for Nexu
 
 [lib]
 name = "nexus_vault_core"
-crate-type = ["staticlib", "cdylib", "rlib"]
 
 [dependencies]
 argon2 = { version = "0.5.3", features = ["std"] }
@@ -19,7 +18,7 @@ serde_json = "1.0"
 uuid = { version = "1.10", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 thiserror = "1.0"
-tauri = "2"
+tauri = { version = "2", optional = true , features = [] }
 rusqlite = { version = "0.41.0", features = ["bundled"] }
 
 [dev-dependencies]
@@ -27,4 +26,13 @@ hex = "0.4"
 tempfile = "3.27.0"
 
 [build-dependencies]
-tauri-build = "2"
+tauri-build = { version = "2", features = [] }
+
+[features]
+# Enabled by the Tauri CLI via tauri.conf.json `build.features`; plain `cargo test` builds the core only.
+app = ["dep:tauri"]
+
+[[bin]]
+name = "nexus-vault-core"
+path = "src/main.rs"
+required-features = ["app"]

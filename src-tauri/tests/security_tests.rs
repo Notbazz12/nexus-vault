@@ -1,5 +1,5 @@
 use nexus_vault_core::crypto::{
-    build_aad, decrypt_dek, decrypt_payload, derive_kek, encrypt_dek, encrypt_payload,
+    decrypt_dek, decrypt_payload, derive_kek, encrypt_dek, encrypt_payload,
     generate_dek, DomainSeparator, KdfParams, MasterPassword, CURRENT_FORMAT_VERSION,
     MAX_KDF_MEMORY_KIB, MIN_KDF_MEMORY_KIB, SALT_SIZE,
 };

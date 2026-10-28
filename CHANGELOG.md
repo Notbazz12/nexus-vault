@@ -8,7 +8,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 ## [0.2.0-alpha] - 2026-10-27
 
 ### Añadido
-- **Fases 02–03 (código listo, falta compilar en Windows)**: `src-tauri` es ahora una app Tauri v2. `vault.rs` guarda cada registro en SQLite como blob XChaCha20-Poly1305 con AAD `kind:id`; DEK envuelta con KEK Argon2id; rotación de contraseña maestra sin recifrar registros. Comandos IPC: `vault_status`, `vault_create`, `vault_unlock`, `vault_lock`, `vault_change_password`, `records_list`, `record_put`, `record_delete`. Tests en `src-tauri/tests/vault_tests.rs`.
+- **Fases 02–03**: `src-tauri` es ahora una app Tauri v2. `vault.rs` guarda cada registro en SQLite como blob XChaCha20-Poly1305 con AAD `kind:id`; DEK envuelta con KEK Argon2id; rotación de contraseña maestra sin recifrar registros. Comandos IPC: `vault_status`, `vault_create`, `vault_unlock`, `vault_lock`, `vault_change_password`, `records_list`, `record_put`, `record_delete`. Tests en `src-tauri/tests/vault_tests.rs`.
 - Frontend conectado a la bóveda real (`src/lib/vaultApi.ts`), con modo demo en memoria cuando se abre en un navegador sin Tauri.
 - Autobloqueo por inactividad y borrado del portapapeles según la configuración.
 - Rediseño claro estilo Kaspersky: tokens de color por variables CSS (claro por defecto, oscuro opcional), barra lateral teal, secciones Sitios web y apps / Tarjetas bancarias / Direcciones / Notas / Revisar contraseñas, iconos con inicial de color.
