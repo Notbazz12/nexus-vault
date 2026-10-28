@@ -2,6 +2,7 @@
 name = "nexus-vault-core"
 version = "0.1.0"
 edition = "2021"
+default-run = "nexus-vault-core"
 authors = ["Nexus Vault Engineering <engineering@nexusvault.local>"]
 description = "Core security, cryptographic engine, and domain services for Nexus Vault"
 
@@ -20,6 +21,7 @@ chrono = { version = "0.4", features = ["serde"] }
 thiserror = "1.0"
 tauri = { version = "2", optional = true , features = [] }
 rusqlite = { version = "0.41.0", features = ["bundled"] }
+url = "2"
 
 [dev-dependencies]
 hex = "0.4"

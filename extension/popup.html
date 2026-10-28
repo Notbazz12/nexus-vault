@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <style>
+    :root { --accent: #00a88e; --accent-strong: #008a75; --ink: #1d2b2a; --muted: #5d6b6a; --line: #e2e8e7; --bg: #ffffff; --soft: #f4f7f7; --danger: #c62f3b; }
+    @media (prefers-color-scheme: dark) {
+      :root { --ink: #e6efee; --muted: #9aaaa8; --line: #2b3837; --bg: #151d1c; --soft: #1d2726; --danger: #ff6b77; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; width: 320px; font: 14px/1.4 "Segoe UI", system-ui, sans-serif; color: var(--ink); background: var(--bg); }
+    header { display: flex; align-items: center; gap: 8px; padding: 12px 14px; background: var(--accent); color: #fff; }
+    header img { width: 22px; height: 22px; }
+    header h1 { flex: 1; margin: 0; font-size: 15px; font-weight: 600; }
+    header button { background: transparent; border: 1px solid rgba(255,255,255,.6); color: #fff; padding: 4px 10px; }
+    main { padding: 14px; }
+    p { margin: 0 0 10px; color: var(--muted); }
+    .error { color: var(--danger); }
+    input { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--soft); color: var(--ink); font: inherit; }
+    input:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    button { border: 0; border-radius: 8px; padding: 8px 12px; font: inherit; font-weight: 600; cursor: pointer; }
+    .primary { width: 100%; margin-top: 10px; background: var(--accent); color: #fff; }
+    .primary:hover { background: var(--accent-strong); }
+    .primary:disabled { opacity: .6; cursor: default; }
+    ul { list-style: none; margin: 0; padding: 0; }
+    li { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+    li:last-child { border-bottom: 0; }
+    .who { flex: 1; min-width: 0; }
+    .who strong, .who span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .who span { color: var(--muted); font-size: 12px; }
+    .fill { background: var(--accent); color: #fff; }
+    .copy { background: var(--soft); color: var(--ink); border: 1px solid var(--line); }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="icons/32.png" alt="" />
+    <h1>Nexus Vault</h1>
+    <button id="lock" hidden>Bloquear</button>
+  </header>
+  <main>
+    <p id="message">Conectando…</p>
+    <form id="unlock" hidden>
+      <label for="password"><p>Introduce tu contraseña maestra</p></label>
+      <input id="password" type="password" autocomplete="current-password" required />
+      <button class="primary" type="submit">Desbloquear</button>
+    </form>
+    <ul id="logins" hidden></ul>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>

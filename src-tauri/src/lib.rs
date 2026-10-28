@@ -1,5 +1,6 @@
 pub mod crypto;
 pub mod error;
+pub mod host;
 pub mod vault;
 
 pub use crypto::*;
