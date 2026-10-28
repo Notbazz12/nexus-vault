@@ -38,3 +38,8 @@ app = ["dep:tauri"]
 name = "nexus-vault-core"
 path = "src/main.rs"
 required-features = ["app"]
+
+[profile.release]
+# One codegen unit: smaller binary, and avoids rustc stalling on the huge `windows` crate
+# while waiting for parallel-codegen jobserver tokens on this toolchain.
+codegen-units = 1

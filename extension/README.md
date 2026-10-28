@@ -5,6 +5,10 @@ pide los datos a `nexus-vault-host.exe` (native messaging), que abre el mismo
 `vault.db` que la app de escritorio y solo devuelve los logins del sitio abierto.
 
 ## Instalar
+Con el instalador (`Nexus Vault_*_x64-setup.exe`) el host ya queda registrado en Edge:
+solo carga la carpeta `%LOCALAPPDATA%\Nexus Vault\extension` como extensión desempaquetada.
+
+Para desarrollo, sin instalador:
 1. `powershell -ExecutionPolicy Bypass -File extension\install-host.ps1`
 2. En Edge abre `edge://extensions`, activa **Modo de desarrollador**,
    pulsa **Cargar desempaquetada** y elige esta carpeta `extension`.

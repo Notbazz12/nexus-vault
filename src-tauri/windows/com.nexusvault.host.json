@@ -1,0 +1,7 @@
+{
+  "name": "com.nexusvault.host",
+  "description": "Nexus Vault native messaging host",
+  "path": "nexus-vault-host.exe",
+  "type": "stdio",
+  "allowed_origins": ["chrome-extension://jkgldpjmhklndjnniiflbbbecnbilkdl/"]
+}
