@@ -10,50 +10,74 @@ import {
 } from 'lucide-react';
 import { useVaultStore } from '../store/useVaultStore';
 import { LoginItem } from '../types';
+import { ImportedLogin, hostOf, parseExport } from '../lib/importers';
 
 export const ImportExportView: React.FC = () => {
-  const { saveItem } = useVaultStore();
+  const { saveItem, setView, items } = useVaultStore();
 
   const [activeTab, setActiveTab] = useState<'import' | 'export'>('import');
 
   // Import State
-  const [selectedFormat, setSelectedFormat] = useState('bitwarden');
-  const previewData = [
-    { name: 'GitLab Corporate', user: 'felipe_sec', pass: 'Gl#88!vPx09z', url: 'https://gitlab.com' },
-    { name: 'Slack Workspace', user: 'felipe@nexusvault.local', pass: 'Sl@ck!2026Secure', url: 'https://slack.com' },
-    { name: 'DigitalOcean Cloud', user: 'felipe_do', pass: 'Do#Cloud#8981!', url: 'https://digitalocean.com' },
-  ];
-  const [importSuccess, setImportSuccess] = useState(false);
+  const [fileName, setFileName] = useState('');
+  const [previewData, setPreviewData] = useState<ImportedLogin[]>([]);
+  const [importError, setImportError] = useState('');
+  const [importResult, setImportResult] = useState<{ added: number; skipped: number } | null>(null);
 
   // Export State
   const [exportPassword, setExportPassword] = useState('');
   const [exportWarningAccepted, setExportWarningAccepted] = useState(false);
   const [exportDone, setExportDone] = useState<string | null>(null);
 
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow picking the same file again
+    setImportResult(null);
+    setImportError('');
+    setPreviewData([]);
+    setFileName(file?.name ?? '');
+    if (!file) return;
+    try {
+      const rows = parseExport(await file.text());
+      if (!rows.length) setImportError('No se encontraron contraseñas en el archivo.');
+      setPreviewData(rows);
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : 'No se pudo leer el archivo.');
+    }
+  };
+
   const handleExecuteImport = () => {
-    previewData.forEach((row) => {
-      const newItem: LoginItem = {
-        id: 'item-' + Math.random().toString(36).substring(2, 9),
+    const seen = new Set(
+      items.filter((it): it is LoginItem => it.type === 'login' && !it.isTrashed)
+        .map((it) => `${hostOf(it.url)}\n${it.username}\n${it.password}`)
+    );
+    let added = 0;
+    for (const row of previewData) {
+      const key = `${hostOf(row.url)}\n${row.username}\n${row.password}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      saveItem({
+        id: `item-${crypto.randomUUID()}`,
         type: 'login',
-        title: row.name,
-        username: row.user,
-        email: row.user.includes('@') ? row.user : '',
-        password: row.pass,
+        title: row.title,
+        username: row.username,
+        email: row.username.includes('@') ? row.username : '',
+        password: row.password,
         url: row.url,
-        notes: `Importado desde formato ${selectedFormat}.`,
+        notes: row.notes,
         category: 'Importado',
         folderId: null,
         isFavorite: false,
         isTrashed: false,
-        tags: ['importado', selectedFormat],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      saveItem(newItem);
-    });
-
-    setImportSuccess(true);
-    setTimeout(() => setImportSuccess(false), 4000);
+        tags: ['importado'],
+        createdAt: '',
+        updatedAt: '',
+      });
+      added++;
+    }
+    setView('import-export'); // saveItem jumps to the list; stay here to show the result
+    setImportResult({ added, skipped: previewData.length - added });
+    setPreviewData([]);
+    setFileName('');
   };
 
   const handleExportEncrypted = (e: React.FormEvent) => {
@@ -109,50 +133,39 @@ export const ImportExportView: React.FC = () => {
       {/* IMPORT TAB */}
       {activeTab === 'import' && (
         <div className="space-y-6 max-w-3xl">
-          {importSuccess && (
+          {importResult && (
             <div className="p-4 rounded-xl bg-cyber-green/10 border border-cyber-green/40 text-xs text-cyber-green flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 shrink-0" />
-              <span>¡Importación completada! Se han agregado 3 registros cifrados a tu bóveda.</span>
+              <span>
+                Importación completada: {importResult.added} cuentas añadidas y cifradas
+                {importResult.skipped > 0 && ` (${importResult.skipped} ya estaban en tu bóveda)`}.
+                Borra el archivo exportado: contiene tus contraseñas sin cifrar.
+              </span>
             </div>
           )}
 
-          {/* Format selection */}
+          {/* File selection */}
           <div className="p-5 rounded-2xl bg-nexus-900 border border-nexus-750 space-y-3">
-            <label className="text-xs font-semibold text-nexus-200">
-              1. Selecciona el Gestor de Origen
+            <span className="text-xs font-semibold text-nexus-200">1. Elige el archivo exportado</span>
+            <p className="text-xs text-nexus-400 leading-relaxed">
+              Edge o Chrome: <span className="font-mono">edge://settings/passwords</span> → ⋯ → Exportar contraseñas (CSV).
+              También acepta CSV de Bitwarden, 1Password y Firefox, y el archivo de texto que exporta Kaspersky Password Manager.
+            </p>
+            <label className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-nexus-800 border border-nexus-700 text-xs font-semibold text-nexus-100 hover:border-cyan-accent cursor-pointer focus-within:outline focus-within:outline-2 focus-within:outline-cyan-accent">
+              <FileSpreadsheet className="w-4 h-4 text-cyan-accent" />
+              <span>{fileName || 'Seleccionar archivo (.csv o .txt)'}</span>
+              <input type="file" accept=".csv,.txt,text/csv,text/plain" onChange={handleFile} className="sr-only" />
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              {[
-                { id: 'bitwarden', label: 'Bitwarden (CSV)' },
-                { id: '1password', label: '1Password (CSV)' },
-                { id: 'chrome', label: 'Google Chrome (CSV)' },
-                { id: 'generic', label: 'CSV Genérico' },
-              ].map((fmt) => (
-                <button
-                  key={fmt.id}
-                  type="button"
-                  onClick={() => setSelectedFormat(fmt.id)}
-                  className={`p-3 rounded-xl border text-xs font-medium transition-all text-center ${
-                    selectedFormat === fmt.id
-                      ? 'bg-nexus-800 border-cyan-accent text-cyan-accent shadow-sm'
-                      : 'bg-nexus-850 border-nexus-750 text-nexus-300 hover:border-nexus-650'
-                  }`}
-                >
-                  {fmt.label}
-                </button>
-              ))}
-            </div>
+            {importError && <p role="alert" className="text-xs text-cyber-red">{importError}</p>}
           </div>
 
           {/* Preview Table */}
+          {previewData.length > 0 && (
           <div className="p-5 rounded-2xl bg-nexus-900 border border-nexus-750 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-nexus-200 flex items-center gap-1.5">
                 <Table className="w-4 h-4 text-cyan-accent" />
-                <span>2. Vista Previa y Asignación de Columnas ({previewData.length} detectados)</span>
-              </span>
-              <span className="text-[10px] font-mono text-cyber-green flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3" /> Sin duplicados críticos
+                <span>2. Revisa las cuentas ({previewData.length} encontradas)</span>
               </span>
             </div>
 
@@ -169,8 +182,8 @@ export const ImportExportView: React.FC = () => {
                 <tbody className="divide-y divide-nexus-800 text-nexus-200">
                   {previewData.map((row, i) => (
                     <tr key={i} className="hover:bg-nexus-850/40">
-                      <td className="p-2.5 font-semibold text-nexus-100">{row.name}</td>
-                      <td className="p-2.5">{row.user}</td>
+                      <td className="p-2.5 font-semibold text-nexus-100">{row.title}</td>
+                      <td className="p-2.5">{row.username}</td>
                       <td className="p-2.5 text-nexus-400">••••••••••</td>
                       <td className="p-2.5 text-cyan-accent truncate max-w-[150px]">{row.url}</td>
                     </tr>
@@ -185,10 +198,11 @@ export const ImportExportView: React.FC = () => {
                 className="px-5 py-2 rounded-xl bg-cyan-accent hover:bg-electric-blue text-nexus-950 font-bold text-xs  shadow-cyber-cyan flex items-center gap-2"
               >
                 <Upload className="w-4 h-4" />
-                <span>Confirmar e Importar Registros</span>
+                <span>Importar {previewData.length} cuentas</span>
               </button>
             </div>
           </div>
+          )}
         </div>
       )}
 
