@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useVaultStore } from './store/useVaultStore';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
+import { UpdateBanner } from './components/UpdateBanner';
 
 // 13 Views
 import { WelcomeView } from './views/WelcomeView';
@@ -104,6 +105,8 @@ export const App: React.FC = () => {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
+        <UpdateBanner />
+
         {/* Top Header & Search */}
         <Header />
 

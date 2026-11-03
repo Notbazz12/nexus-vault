@@ -22,6 +22,7 @@ thiserror = "1.0"
 tauri = { version = "2", optional = true , features = [] }
 rusqlite = { version = "0.41.0", features = ["bundled"] }
 url = "2"
+tauri-plugin-updater = { version = "2", optional = true }
 
 [dev-dependencies]
 hex = "0.4"
@@ -32,7 +33,7 @@ tauri-build = { version = "2", features = [] }
 
 [features]
 # Enabled by the Tauri CLI via tauri.conf.json `build.features`; plain `cargo test` builds the core only.
-app = ["dep:tauri"]
+app = ["dep:tauri", "dep:tauri-plugin-updater"]
 
 [[bin]]
 name = "nexus-vault-core"
