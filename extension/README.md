@@ -20,7 +20,8 @@ tienda a `allowed_origins` en `install-host.ps1`.
 
 Al entrar en un campo de usuario o contraseña aparece un menú con tus logins de ese
 sitio (o un aviso si no hay ninguno). Si la bóveda está bloqueada, el menú te ofrece
-desbloquearla. Al iniciar sesión en una web, la siguiente página te pregunta si quieres
+desbloquearla. En un campo de contraseña sin cuentas guardadas (un registro) ofrece
+**Generar contraseña segura**, que rellena la contraseña y su confirmación. Al iniciar sesión en una web, la siguiente página te pregunta si quieres
 guardar la contraseña; las guardadas desde Edge aparecen en la app al volver a desbloquearla.
 
 La bóveda se bloquea sola a los 5 minutos sin uso, o al cerrar Edge.

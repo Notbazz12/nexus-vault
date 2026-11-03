@@ -116,21 +116,61 @@
     m.style.width = `${Math.max(r.width, 260)}px`;
   }
 
+  const CHARSETS = ['abcdefghijkmnopqrstuvwxyz', 'ABCDEFGHJKLMNPQRSTUVWXYZ', '23456789', '!@#$%&*-_=+?'];
+
+  /** 20 random characters with at least one of each set (sign-up forms often require it). */
+  function generatePassword(length = 20) {
+    const all = CHARSETS.join('');
+    const pick = (set) => {
+      const max = 256 - (256 % set.length); // reject biased bytes
+      for (;;) {
+        const [b] = crypto.getRandomValues(new Uint8Array(1));
+        if (b < max) return set[b % set.length];
+      }
+    };
+    for (;;) {
+      const pw = Array.from({ length }, () => pick(all)).join('');
+      if (CHARSETS.every((set) => [...pw].some((c) => set.includes(c)))) return pw;
+    }
+  }
+
+  /** Fills the new password and its confirmation field, then shows it once so the user can note it. */
+  function fillGenerated(target) {
+    const pw = generatePassword();
+    // The target and the fields after it (confirmation); a "current password" field comes before.
+    const inputs = scopeInputs(target);
+    for (const input of inputs.slice(inputs.indexOf(target))) if (input.type === 'password') setValue(input, pw);
+    const m = card();
+    const r = target.getBoundingClientRect();
+    Object.assign(m.style, { top: `${r.bottom + 4}px`, left: `${r.left}px`, width: `${Math.max(r.width, 260)}px` });
+    m.append(textRow('Contraseña generada', 'Nexus Vault te ofrecerá guardarla al registrarte'));
+    const code = document.createElement('b');
+    code.textContent = pw;
+    Object.assign(code.style, { padding: '0 12px 12px', fontFamily: 'Consolas, monospace', whiteSpace: 'normal', wordBreak: 'break-all' });
+    m.append(code);
+    m.addEventListener('click', close); // it can cover the submit button
+  }
+
   async function suggest(target) {
     const resp = await send({ cmd: 'suggest' });
     if (document.activeElement !== target || !resp?.ok) return;
+    const generate = target.type === 'password' && {
+      title: 'Generar contraseña segura',
+      sub: 'Rellena este campo y el de confirmación',
+      action: () => fillGenerated(target),
+    };
     if (resp.locked) {
       return open(target, [{
         title: 'Desbloquear Nexus Vault',
         sub: 'Pulsa aquí o el icono de la extensión',
         action: () => send({ cmd: 'openPopup' }),
-      }]);
+      }, generate].filter(Boolean));
     }
     if (!resp.logins.length) {
       return open(target, [{
         title: `Sin cuentas guardadas para ${location.hostname.replace(/^www\./, '')}`,
-        sub: 'Inicia sesión y Nexus Vault te ofrecerá guardarla',
-      }]);
+        sub: generate ? '' : 'Inicia sesión y Nexus Vault te ofrecerá guardarla',
+      }, generate].filter(Boolean));
     }
     open(target, resp.logins.map((login) => ({
       title: login.title || login.username || '(sin título)',
